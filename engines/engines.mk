@@ -26,6 +26,11 @@ DEFINES += -DENABLE_AGOS2
 endif
 endif
 
+ifdef ENABLE_AGS
+DEFINES += -DENABLE_AGS=$(ENABLE_AGS)
+MODULES += engines/ags
+endif
+
 ifdef ENABLE_CGE
 DEFINES += -DENABLE_CGE=$(ENABLE_CGE)
 MODULES += engines/cge
