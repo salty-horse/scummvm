@@ -258,7 +258,7 @@ protected:
 	const ADGameDescription *detectGameFilebased(const FileMap &allFiles, const ADFileBasedFallback *fileBasedFallback) const;
 
 	// TODO
-	void updateGameDescriptor(GameDescriptor &desc, const ADGameDescription *realDesc) const;
+	virtual void updateGameDescriptor(GameDescriptor &desc, const ADGameDescription *realDesc) const;
 
 	/**
 	 * Compose a hashmap of all files in fslist.
