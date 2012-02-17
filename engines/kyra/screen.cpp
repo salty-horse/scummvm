@@ -2181,7 +2181,7 @@ void Screen::decodeFrameDelta(uint8 *dst, const uint8 *src, bool noXor) {
 		wrapped_decodeFrameDelta<false>(dst, src);
 }
 
-template <bool noXor>
+template<bool noXor>
 void Screen::wrapped_decodeFrameDelta(uint8 *dst, const uint8 *src) {
 	while (1) {
 		uint8 code = *src++;
@@ -3200,7 +3200,7 @@ void Screen::crossFadeRegion(int x1, int y1, int x2, int y2, int w, int h, int s
 
 	hideMouse();
 
-	uint16 *wB = (uint16*)_pagePtrs[14];
+	uint16 *wB = (uint16 *)_pagePtrs[14];
 	uint8 *hB = _pagePtrs[14] + 640;
 
 	for (int i = 0; i < w; i++)

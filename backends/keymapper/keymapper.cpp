@@ -145,6 +145,8 @@ Keymap *Keymapper::getKeymap(const String& name, bool *globalReturn) {
 
 bool Keymapper::pushKeymap(const String& name, bool transparent) {
 	bool global;
+
+	assert(!name.empty());
 	Keymap *newMap = getKeymap(name, &global);
 
 	if (!newMap) {
@@ -215,7 +217,7 @@ bool Keymapper::mapKey(const KeyState& key, bool keyDown) {
 		if (action)
 			_keysDown[key] = action;
 	} else {
-		HashMap<KeyState, Action*>::iterator it = _keysDown.find(key);
+		HashMap<KeyState, Action *>::iterator it = _keysDown.find(key);
 
 		if (it != _keysDown.end()) {
 			action = it->_value;

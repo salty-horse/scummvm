@@ -170,7 +170,7 @@ public:
 };
 
 class Scene1337 : public SceneExt {
-	class unkObj1337sub1: public SceneItem {
+	class unkObj1337sub1: public SceneHotspot {
 	public:
 		SceneObject _object1;
 
@@ -181,7 +181,7 @@ class Scene1337 : public SceneExt {
 		void synchronize(Serializer &s);
 	};
 
-	class unkObj1337_1: public SceneItem {
+	class unkObj1337_1: public SceneHotspot {
 	public:
 		unkObj1337sub1 _arr1[4];
 		unkObj1337sub1 _arr2[8];
@@ -200,7 +200,7 @@ class Scene1337 : public SceneExt {
 
 	class Action1337: public Action {
 	public:
-		void subD18B5(int arg1, int arg2, int arg3);
+		void subD18B5(int resNum, int stripNum, int frameNum);
 		void skipFrames(int32 skipCount);
 	};
 
@@ -263,7 +263,7 @@ public:
 	ASound _aSound1;
 	ASound _aSound2;
 	BackgroundSceneObject _background1;
-	int _fieldA30;
+	bool _autoplay;
 	unkObj1337_1 _arrunkObj1337[4];
 	SceneItem _item1;
 	SceneObject _object1;
@@ -315,27 +315,55 @@ public:
 	void setAnimationInfo(unkObj1337sub1 *subObj);
 	void subC20E5();
 	void subC20F9();
-	int subC264B(int arg1);
-	int subC2BF8(unkObj1337sub1 *subObj1, Common::Point *pt);
+	void subC2586();
+	bool subC264B(int arg1);
+	bool subC2687(int arg1);
+	int  subC26CB(int arg1, int arg2);
+	int  subC2719(int arg1);
+	int  subC274D(int arg1);
+	int  subC2781(int arg1);
+	int  subC27B5(int arg1);
+	int  subC27F9(int arg1);
+	void subC2835(int arg1);
+	bool subC2BF8(unkObj1337sub1 *subObj1, Common::Point pt);
 	void subC2C2F();
-	int subC3E92(int arg1);
+	void subC318B(int arg1, unkObj1337sub1 *subObj2, int arg3);
+	int  subC3257(int arg1);
+	bool subC32B1(int arg1, int arg2);
+	int  subC331B(int arg1);
+	bool subC3386(int arg1, int arg2);
+	void subC33C0(unkObj1337sub1 *subObj1, unkObj1337sub1 *subObj2);
+	void subC3456(unkObj1337sub1 *subObj1, unkObj1337sub1 *subObj2);
+	void subC340B(unkObj1337sub1 *subObj1, unkObj1337sub1 *subObj2);
+	void subC34A1(unkObj1337sub1 *subObj1, unkObj1337sub1 *subObj2);
+	unkObj1337sub1 *subC34EC(int arg1);
+	void subC358E(unkObj1337sub1 *subObj1, int arg2);
+	int  subC3E92(int arg1);
 	void subC4A39(unkObj1337sub1 *subObj);
 	void subC4CD2();
 	void subC4CEC();
 	void subC51A0(unkObj1337sub1 *subObj1, unkObj1337sub1 *subObj2);
+	void displayDialog(int dialogNumb);
 	void subPostInit();
-	void subCBB1E();
-	void subCBB7B();
+	void subCB59B();
+	void suggestInstructions();
+	void shuffleCards();
+	void subCCF26();
+	void subCD193();
+	void subCDB90(int arg1, Common::Point pt);
 	void subCF31D();
 	void subCF979();
+	void subD026D();
 	void subD0281();
+	void subD02CA();
 	void subD183F(int arg1, int arg2);
 	void subD18B5(int resNum, int rlbNum, int arg3);
-	void subD18F5();
-	void subD1917();
-	void subD1940(bool flag);
+	int  subD18F5();
+	int  subD1917();
+	int  subD1940(bool flag);
 	void subD195F(int arg1, int arg2);
 	void subD1975(int arg1, int arg2);
+	void subD1A48(int arg1);
 
 	virtual void postInit(SceneObjectList *OwnerList = NULL);
 	virtual void remove();
@@ -849,6 +877,58 @@ public:
 	virtual void postInit(SceneObjectList *OwnerList = NULL);
 	virtual void signal();
 	virtual void saveCharacter(int characterIndex);
+};
+
+class Scene1850 : public SceneExt {
+	class Hotspot2 : public NamedHotspot {
+	public:
+		virtual bool startAction(CursorType action, Event &event);
+	};
+
+	class Actor5 : public SceneActor {
+	public:
+		virtual bool startAction(CursorType action, Event &event);
+	};
+	class Actor6 : public SceneActor {
+	public:
+		virtual bool startAction(CursorType action, Event &event);
+	};
+	class Actor8 : public SceneActor {
+	public:
+		virtual bool startAction(CursorType action, Event &event);
+	};
+	
+public:
+	int _field412;
+	int _field414;
+	int _field416;
+	int _field418;
+	Common::Point _field41A;
+	int _field41E;
+	ScenePalette _palette1;
+	SpeakerQuinn _quinnSpeaker;
+	SpeakerSeeker _seekerSpeaker;
+	NamedHotspot _item1;
+	Hotspot2 _item2;
+	SceneActor _actor1;
+	SceneActor _actor2;
+	SceneActor _actor3;
+	SceneActor _actor4;
+	Actor5 _actor5;
+	Actor6 _actor6;
+	Actor6 _actor7;
+	Actor8 _actor8;
+	SequenceManager _sequenceManager1;
+	SequenceManager _sequenceManager2;
+
+	Scene1850();
+	void synchronize(Serializer &s);
+
+	virtual void postInit(SceneObjectList *OwnerList = NULL);
+	virtual void remove();
+	virtual void signal();
+	virtual void process(Event &event);
+	virtual void dispatch();
 };
 
 class Scene1875 : public SceneExt {

@@ -375,6 +375,8 @@ void Ringworld2Globals::reset() {
 	T2_GLOBALS._uiElements._active = false;
 
 	// Reset fields
+	Common::fill(&_v1000[0], &_v1000[0x1000], 0);
+	_v1000Flag = false;
 	_v5589E.set(0, 0, 0, 0);
 	_v558B6.set(0, 0, 0, 0);
 	_v558C2 = 0;
@@ -455,7 +457,6 @@ void Ringworld2Globals::reset() {
 	_v5780E = 0;
 	_v57810 = 0;
 	_v57C2C = 0;
-	_v58CE2 = 0;
 	_v565EC[0] = 0;
 	_v565EC[1] = 27;
 	_v565EC[2] = 27;
@@ -516,7 +517,6 @@ void Ringworld2Globals::synchronize(Serializer &s) {
 	s.syncAsSint16LE(_v5780E);
 	s.syncAsSint16LE(_v57810);
 	s.syncAsSint16LE(_v57C2C);
-	s.syncAsSint16LE(_v58CE2);
 	s.syncAsSint16LE(_speechSubtitles);
 
 	for (i = 0; i < 5; i++)

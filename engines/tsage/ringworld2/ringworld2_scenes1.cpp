@@ -37,7 +37,7 @@ void Scene1010::postInit(SceneObjectList *OwnerList) {
 	SceneExt::postInit();
 	loadScene(1010);
 
-	R2_GLOBALS._v58CE2 = 0;
+	R2_GLOBALS._uiElements._active = false;
 	setZoomPercents(100, 1, 160, 100);
 	R2_GLOBALS._player.postInit();
 	R2_GLOBALS._player.setObjectWrapper(NULL);
@@ -100,7 +100,7 @@ void Scene1020::postInit(SceneObjectList *OwnerList) {
 		g_globals->gfxManager()._bounds.moveTo(Common::Point(160, 0));
 
 	R2_GLOBALS._v558B6.set(160, 0, 160, 161);
-	R2_GLOBALS._v58CE2 = 0;
+	R2_GLOBALS._uiElements._active = false;
 	R2_GLOBALS._player.postInit();
 
 	if (R2_GLOBALS._sceneManager._previousScene == 1010) {
@@ -279,7 +279,7 @@ bool Scene1100::Actor17::startAction(CursorType action, Event &event) {
 		break;
 	case R2_SONIC_STUNNER:
 	// No break on purpose
-	case R2_44:
+	case R2_PHOTON_STUNNER:
 		if (_visage == 1105) {
 			R2_GLOBALS._player.disableControl();
 			if (R2_GLOBALS._player._characterIndex == 1) {
@@ -330,7 +330,7 @@ void Scene1100::postInit(SceneObjectList *OwnerList) {
 		loadScene(1100);
 
 	if ((R2_GLOBALS._sceneManager._previousScene == 1000) && (!R2_GLOBALS.getFlag(44))) {
-		R2_GLOBALS._v58CE2 = 0;
+		R2_GLOBALS._uiElements._active = false;
 		R2_GLOBALS._v5589E.left = 0;
 		R2_GLOBALS._v5589E.right = 200;
 	}
@@ -339,7 +339,7 @@ void Scene1100::postInit(SceneObjectList *OwnerList) {
 		R2_GLOBALS._sceneManager._previousScene = 1100;
 
 	if (R2_GLOBALS._sceneManager._previousScene == -1) {
-		R2_GLOBALS._v58CE2 = 0;
+		R2_GLOBALS._uiElements._active = false;
 		R2_GLOBALS._v5589E.left = 0;
 		R2_GLOBALS._v5589E.right = 200;
 	}
@@ -542,7 +542,7 @@ void Scene1100::remove() {
 	if (_sceneMode > 20)
 		R2_GLOBALS._sound1.fadeOut2(NULL);
 	g_globals->gfxManager()._bounds.moveTo(Common::Point(0, 0));
-	R2_GLOBALS._v58CE2 = 1;
+	R2_GLOBALS._uiElements._active = true;
 	SceneExt::remove();
 }
 
@@ -1634,7 +1634,7 @@ void Scene1337::unkObj1337_1::synchronize(Serializer &s) {
 }
 
 Scene1337::Scene1337() {
-	_fieldA30 = 0;
+	_autoplay = false;
 	_field3E24 = 0;
 	_field3E26 = 0;
 
@@ -1657,8 +1657,8 @@ void Scene1337::synchronize(Serializer &s) {
 	warning("STUBBED: Scene1337::synchronize()");
 }
 
-void Scene1337::Action1337::subD18B5(int arg1, int arg2, int arg3) {
-	warning("STUBBED: Action1337::sub53CD5()");
+void Scene1337::Action1337::subD18B5(int resNum, int stripNum, int frameNum) {
+	warning("STUBBED: Action1337::subD18B5()");
 }
 
 void Scene1337::Action1337::skipFrames(int32 skipCount) {
@@ -2430,7 +2430,7 @@ void Scene1337::Action1::signal() {
 		signal();
 		break;
 	case 12:
-		scene->subCBB1E();
+		scene->suggestInstructions();
 		remove();
 		break;
 	default:
@@ -2790,7 +2790,7 @@ void Scene1337::Action4::signal() {
 		scene->_item2._object1.hide();
 		if ((scene->_arrunkObj1337[scene->_field423E]._arr1[0]._field34 == 0) && (scene->subC264B(scene->_arrunkObj1337[scene->_field423E]._arr3[0]._field34 == 0))) {
 			if (scene->_field3E24 < 0)
-				scene->subCBB7B();
+				scene->shuffleCards();
 			scene->_item2._object1.setPosition(Common::Point(162, 95));
 			scene->_item2._object1.show();
 
@@ -2825,7 +2825,7 @@ void Scene1337::Action4::signal() {
 		scene->_item2._object1.hide();
 		if ((scene->_arrunkObj1337[scene->_field423E]._arr1[2]._field34 == 0) && (scene->subC264B(scene->_arrunkObj1337[scene->_field423E]._arr3[0]._field34 == 0))) {
 			if (scene->_field3E24 < 0)
-				scene->subCBB7B();
+				scene->shuffleCards();
 			scene->_item2._object1.setPosition(Common::Point(162, 95));
 			scene->_item2._object1.show();
 
@@ -2860,7 +2860,7 @@ void Scene1337::Action4::signal() {
 		scene->_item2._object1.hide();
 		if ((scene->_arrunkObj1337[scene->_field423E]._arr1[3]._field34 == 0) && (scene->subC264B(scene->_arrunkObj1337[scene->_field423E]._arr3[0]._field34 == 0))) {
 			if (scene->_field3E24 < 0)
-				scene->subCBB7B();
+				scene->shuffleCards();
 			scene->_item2._object1.setPosition(Common::Point(162, 95));
 			scene->_item2._object1.show();
 
@@ -3239,7 +3239,7 @@ void Scene1337::Action10::signal() {
 					scene->_item6._field36 = event.mousePos;
 	
 					for (int i = 0; i <= 7; i++) {
-						if ((scene->subC2BF8(&scene->_arrunkObj1337[2]._arr2[i], &scene->_item6._field36) != 0) && (scene->_arrunkObj1337[2]._arr2[i]._field34 != 0)) {
+						if ((scene->subC2BF8(&scene->_arrunkObj1337[2]._arr2[i], scene->_item6._field36) != 0) && (scene->_arrunkObj1337[2]._arr2[i]._field34 != 0)) {
 							scene->_field3EF4 = &scene->_arrunkObj1337[2]._arr2[0];
 							found2 = true;
 							break;
@@ -3438,7 +3438,7 @@ void Scene1337::Action11::signal() {
 
 					if (scene->_field4242 != 2) {
 						for (i = 0; i <= 3; i++) {
-							if ((scene->subC2BF8(&scene->_arrunkObj1337[scene->_field4242]._arr1[i], &scene->_item6._field36) != 0) && (scene->_arrunkObj1337[scene->_field4242]._arr1[i]._field34 != 0)) {
+							if ((scene->subC2BF8(&scene->_arrunkObj1337[scene->_field4242]._arr1[i], scene->_item6._field36) != 0) && (scene->_arrunkObj1337[scene->_field4242]._arr1[i]._field34 != 0)) {
 								scene->_field3EF8 = &scene->_arrunkObj1337[scene->_field4242]._arr1[i];
 								found = true;
 								break;
@@ -3587,7 +3587,7 @@ void Scene1337::Action12::signal() {
 
 					if (scene->_field4240 == 0) {
 						for (i = 0; i <= 3; i++) {
-							if ((scene->subC2BF8(&scene->_arrunkObj1337[0]._arr1[i], &scene->_item6._field36) != 0) && (scene->_arrunkObj1337[0]._arr1[i]._field34 != 0)) {
+							if ((scene->subC2BF8(&scene->_arrunkObj1337[0]._arr1[i], scene->_item6._field36) != 0) && (scene->_arrunkObj1337[0]._arr1[i]._field34 != 0)) {
 								found = true;
 								scene->_field3EF8 = &scene->_arrunkObj1337[0]._arr1[i];
 								break;
@@ -3597,7 +3597,7 @@ void Scene1337::Action12::signal() {
 					
 					if (scene->_field4240 == 3) {
 						for (i = 0; i <= 3; i++) {
-							if ((scene->subC2BF8(&scene->_arrunkObj1337[3]._arr1[i], &scene->_item6._field36) != 0) && (scene->_arrunkObj1337[3]._arr1[i]._field34 != 0)) {
+							if ((scene->subC2BF8(&scene->_arrunkObj1337[3]._arr1[i], scene->_item6._field36) != 0) && (scene->_arrunkObj1337[3]._arr1[i]._field34 != 0)) {
 								found = true;
 								scene->_field3EF8 = &scene->_arrunkObj1337[3]._arr1[i];
 								break;
@@ -3607,7 +3607,7 @@ void Scene1337::Action12::signal() {
 
 					if (scene->_field4240 == 1) {
 						for (i = 0; i <= 3; i++) {
-							if ((scene->subC2BF8(&scene->_arrunkObj1337[1]._arr1[i], &scene->_item6._field36) != 0) && (scene->_arrunkObj1337[1]._arr1[i]._field34 != 0)) {
+							if ((scene->subC2BF8(&scene->_arrunkObj1337[1]._arr1[i], scene->_item6._field36) != 0) && (scene->_arrunkObj1337[1]._arr1[i]._field34 != 0)) {
 								found = true;
 								scene->_field3EF8 = &scene->_arrunkObj1337[1]._arr1[i];
 								break;
@@ -3719,7 +3719,10 @@ void Scene1337::postInit(SceneObjectList *OwnerList) {
 	SceneExt::postInit();
 //
 
-	R2_GLOBALS._v58CE2 = 0;
+	// Hide the user interface
+	R2_GLOBALS._uiElements._active = false;
+	BF_GLOBALS._interfaceY = 200;
+
 	R2_GLOBALS._player.enableControl();
 	R2_GLOBALS._player._canWalk = false;
 
@@ -3834,7 +3837,7 @@ void Scene1337::remove() {
 		subD1940(false);
 	}
 
-	R2_GLOBALS._v58CE2 = 1;
+	R2_GLOBALS._uiElements._active = true;
 	SceneExt::remove();
 }
 
@@ -3843,7 +3846,7 @@ void Scene1337::process(Event &event) {
 		if (event.btnState != BTNSHIFT_RIGHT) {
 			subD183F(R2_GLOBALS._v5780E, 1);
 			event.handled = true;
-		} else if (_unkFctPtr412 != NULL) {
+		} else if (_unkFctPtr412) {
 			FunctionPtrType tmpFctPtr = _unkFctPtr412;
 			_unkFctPtr412 = NULL;
 			(this->*tmpFctPtr)();
@@ -3851,7 +3854,7 @@ void Scene1337::process(Event &event) {
 		}
 	} else if (event.eventType == EVENT_KEYPRESS) {
 		if (event.kbd.keycode == Common::KEYCODE_SPACE) {
-			if (_unkFctPtr412 != NULL) {
+			if (_unkFctPtr412) {
 				FunctionPtrType tmpFctPtr = _unkFctPtr412;
 				_unkFctPtr412 = NULL;
 				(this->*tmpFctPtr)();
@@ -3870,7 +3873,7 @@ void Scene1337::dispatch() {
 		++_field424E;
 		if (_field424E == 4) {
 			_field424C = 1;
-			subCBB1E();
+			suggestInstructions();
 		}
 	}
 	Scene::dispatch();
@@ -3905,7 +3908,7 @@ void Scene1337::setAnimationInfo(unkObj1337sub1 *subObj) {
 }
 
 void Scene1337::subC20E5() {
-	warning("STUBBED lvl2 subC20E5()");
+	subC2586();
 }
 
 void Scene1337::subC20F9() {
@@ -3936,7 +3939,7 @@ void Scene1337::subC20F9() {
 				break;
 			}
 			
-			if (_fieldA30 == 0)
+			if (!_autoplay)
 				_unkFctPtr412 = &Scene1337::subC20E5;
 			else
 				subC20E5();
@@ -3985,39 +3988,784 @@ void Scene1337::subC20F9() {
 
 }
 
-int Scene1337::subC264B(int arg1) {
-	warning("STUBBED Scene1337::subC264B()");
+void Scene1337::subC2586() {
+	if (_field4244 != 0)
+		_object1.hide();
+
+	switch (_field423E) {
+	case 2:
+		subC4CD2();
+		if (_field4246 == 1) 
+			actionDisplay(1330, 114, 159, 10, 1, 200, 0, 7, 0, 154, 154);
+		_field4246 = 0;
+	// No break on purpose
+	case 0:
+	// No break on purpose
+	case 1:
+	// No break on purpose
+	case 3:
+		_item1.setAction(&_action4);
+	default:
+		break;
+	}
+
+	_field4244 = 1;
+
+}
+
+bool Scene1337::subC264B(int arg1) {
+	switch (arg1) {
+	case 10:
+	// No break on purpose
+	case 12:
+	// No break on purpose
+	case 15:
+	// No break on purpose
+	case 17:
+	// No break on purpose
+	case 18:
+	// No break on purpose
+	case 19:
+	// No break on purpose
+	case 20:
+	// No break on purpose
+	case 21:
+		return true;
+	default:
+		return false;
+	}
+}
+
+bool Scene1337::subC2687(int arg1) {
+	switch (arg1) {
+	case 11:
+	// No break on purpose
+	case 14:
+	// No break on purpose
+	case 16:
+	// No break on purpose
+	case 24:
+		return true;
+	default:
+		return false;
+	}
+}
+
+int Scene1337::subC26CB(int arg1, int arg2) {
+	if ((_arrunkObj1337[arg1]._arr1[arg2]._field34 > 1) && (_arrunkObj1337[arg1]._arr1[arg2]._field34 <= 9)) {
+		return arg2;
+	}
+
 	return -1;
 }
 
-int Scene1337::subC2BF8(unkObj1337sub1 *subObj1, Common::Point *pt) {
-	warning("STUBBED Scene1337::subC2BF8()");
+int Scene1337::subC2719(int arg1) {
+	for (int i = 0; i <= 3; i++) {
+		if (_arrunkObj1337[arg1]._arr1[i]._field34 == 1)
+			return i;
+	}
+
 	return -1;
+}
+
+int Scene1337::subC274D(int arg1) {
+	for (int i = 0; i <= 3; i++) {
+		if (_arrunkObj1337[arg1]._arr1[i]._field34 == 13)
+			return i;
+	}
+
+	return -1;
+}
+
+int Scene1337::subC2781(int arg1) {
+	for (int i = 0; i <= 3; i++) {
+		if (_arrunkObj1337[arg1]._arr1[i]._field34 == 25)
+			return i;
+	}
+
+	return -1;
+}
+
+int Scene1337::subC27B5(int arg1) {
+	switch (arg1) {
+	case 11:
+	// No break on purpose
+	case 14:
+	// No break on purpose
+	case 16:
+	// No break on purpose
+	case 24:
+		return arg1;
+		break;
+	default:
+		return -1;
+		break;
+	}
+}
+
+int Scene1337::subC27F9(int arg1) {
+	switch (arg1) {
+	case 10:
+	// No break on purpose
+	case 12:
+	// No break on purpose
+	case 15:
+	// No break on purpose
+	case 17:
+	// No break on purpose
+	case 18:
+	// No break on purpose
+	case 19:
+	// No break on purpose
+	case 20:
+	// No break on purpose
+	case 21:
+		return arg1;
+	default:
+		return -1;
+	}
+}
+
+void Scene1337::subC2835(int arg1) {
+	int i;
+	bool found = false;
+	switch (arg1) {
+	case 0:
+		for (i = 0; i <= 3; i++) {
+			if (subC27F9(_arrunkObj1337[arg1]._arr1[i]._field34) != -1) {
+				found = true;
+				break;
+			}
+		}
+
+		if (found)
+			break;
+
+		for (i = 0; i <= 3; i++) {
+			if (subC27B5(_arrunkObj1337[arg1]._arr1[i]._field34) != -1) {
+				found = true;
+				break;
+			}
+		}
+
+		if (found)
+			break;
+
+		for (i = 0; i <= 3; i++) {
+			if ((_arrunkObj1337[arg1]._arr1[i]._field34 > 1) && (_arrunkObj1337[arg1]._arr1[i]._field34 <= 9)) {
+				found = true;
+				break;
+			}
+		}
+
+		if (found)
+			break;
+
+		for (i = 0; i <= 3; i++) {
+			if ((_arrunkObj1337[arg1]._arr1[i]._field34 >= 26) && (_arrunkObj1337[arg1]._arr1[i]._field34 <= 33)) {
+				found = true;
+				break;
+			}
+		}
+
+		if (found)
+			break;
+
+		for (i = 0; i <= 3; i++) {
+			if (_arrunkObj1337[arg1]._arr1[i]._field34 == 1) {
+				found = true;
+				break;
+			}
+		}
+
+		if (found)
+			break;
+
+		for (i = 0; i <= 3; i++) {
+			if (_arrunkObj1337[arg1]._arr1[i]._field34 == 25) {
+				found = true;
+				break;
+			}
+		}
+
+		if (found)
+			break;
+		
+		for (i = 0; i <= 3; i++) {
+			if (_arrunkObj1337[arg1]._arr1[i]._field34 == 13) {
+				found = true;
+				break;
+			}
+		}
+		break;
+	case 1:
+		for (i = 0; i <= 3; i++) {
+			if ((_arrunkObj1337[arg1]._arr1[i]._field34 >= 26) && (_arrunkObj1337[arg1]._arr1[i]._field34 <= 33)) {
+				found = true;
+				break;
+			}
+		}
+
+		if (found)
+			break;
+
+		for (i = 0; i <= 3; i++) {
+			if (_arrunkObj1337[arg1]._arr1[i]._field34 == 1) {
+				found = true;
+				break;
+			}
+		}
+
+		if (found)
+			break;
+
+		for (i = 0; i <= 3; i++) {
+			if ((_arrunkObj1337[arg1]._arr1[i]._field34 > 1) && (_arrunkObj1337[arg1]._arr1[i]._field34 <= 9)) {
+				found = true;
+				break;
+			}
+		}
+
+		if (found)
+			break;
+
+		for (i = 0; i <= 3; i++) {
+			if (subC27F9(_arrunkObj1337[arg1]._arr1[i]._field34) != -1) {
+				found = true;
+				break;
+			}
+		}
+
+		if (found)
+			break;
+
+		for (i = 0; i <= 3; i++) {
+			if (subC27B5(_arrunkObj1337[arg1]._arr1[i]._field34) != -1) {
+				found = true;
+				break;
+			}
+		}
+
+		if (found)
+			break;
+
+		for (i = 0; i <= 3; i++) {
+			if (_arrunkObj1337[arg1]._arr1[i]._field34 == 25) {
+				found = true;
+				break;
+			}
+		}
+
+		if (found)
+			break;
+
+		for (i = 0; i <= 3; i++) {
+			if (_arrunkObj1337[arg1]._arr1[i]._field34 == 13) {
+				found = true;
+				break;
+			}
+		}
+
+		break;
+	default:
+		return;
+	}
+
+	subC4A39(&_arrunkObj1337[arg1]._arr1[i]);
+}
+
+bool Scene1337::subC2BF8(unkObj1337sub1 *subObj1, Common::Point pt) {
+	if ((subObj1->_field36.x > pt.x) || (subObj1->_field36.x + 24 < pt.x))
+		return false;
+
+	if ((subObj1->_field36.y > pt.y) || (subObj1->_field36.y + 24 < pt.y))
+		return false;
+
+	return true;
 }
 
 void Scene1337::subC2C2F() {
-	warning("STUBBED Scene1337::subC2C2F()");
+	bool found = true;
+
+	if (_arrunkObj1337[3]._arr3[0]._field34 != 0) {
+		switch (_arrunkObj1337[3]._arr3[0]._field34) {
+		case 10:
+		// No break on purpose
+		case 12:
+		// No break on purpose
+		case 15:
+		// No break on purpose
+		case 17:
+		// No break on purpose
+		case 18:
+		// No break on purpose
+		case 19:
+		// No break on purpose
+		case 20:
+		// No break on purpose
+		case 21:
+			subC4A39(&_arrunkObj1337[3]._arr3[0]);
+			found = false;
+			break;
+		default:
+			found = false;
+			int i;
+			for (i = 0; i <= 3; i++) {
+				if (subC3386(_arrunkObj1337[3]._arr3[0]._field34, _arrunkObj1337[3]._arr1[i]._field34)) {
+					found = true;
+					break;
+				}
+			}
+
+			if (found) {
+				found = false;
+				subC34A1(&_arrunkObj1337[3]._arr1[i], &_arrunkObj1337[3]._arr3[0]);
+			}
+			break;
+		}
+	}
+
+	if (!found)
+		return;
+
+	int randIndx = R2_GLOBALS._randomSource.getRandomNumber(3);
+	
+	if (_arrunkObj1337[3]._arr1[randIndx]._field34 == 1) {
+		found = false;
+
+		for (int i = 0; i <= 7; i++) {
+			if ((_arrunkObj1337[3]._arr2[i]._field34 == 0) && (!subC2687(_arrunkObj1337[3]._arr3[0]._field34))) {
+				subC340B(&_arrunkObj1337[3]._arr1[randIndx], &_arrunkObj1337[3]._arr2[i]);
+				found = true;
+				break;
+			}
+		}
+
+		if (found) {
+			return;
+		}
+	} else if (_arrunkObj1337[3]._arr1[randIndx]._field34 <= 9) {
+		found = false;
+
+		for (int i = 0; i <= 7; i++) {
+			if (_arrunkObj1337[3]._arr2[i]._field34 == _arrunkObj1337[3]._arr1[randIndx]._field34) {
+				found = true;
+				break;
+			}
+		}
+
+		if (!found) {
+			for (int i = 0; i <= 7; i++) {
+				if ((_arrunkObj1337[3]._arr2[i]._field34 == 1) && (!subC2687(_arrunkObj1337[3]._arr3[i]._field34))) {
+					int tmpVal = 0;
+					
+					for (int j = 0; j <= 7; j++) {
+						if ((_arrunkObj1337[3]._arr2[j]._field34 > 1) && (_arrunkObj1337[3]._arr2[j]._field34 <= 9))
+							++tmpVal;
+					}
+					
+					if (tmpVal == 7)
+						_field424A = 3;
+					
+					subC33C0(&_arrunkObj1337[3]._arr1[randIndx], &_arrunkObj1337[3]._arr2[i]);
+					found = true;
+					break;
+				}
+			}
+			if (found)
+				return;
+		}
+	} else if (_arrunkObj1337[3]._arr1[randIndx]._field34 == 13) {
+		int tmpVal = subC331B(3);
+
+		if (tmpVal != -1) {
+			subC358E(&_arrunkObj1337[3]._arr1[randIndx], tmpVal);
+			return;
+		}
+	} else if (_arrunkObj1337[3]._arr1[randIndx]._field34 == 25) {
+		int tmpVal = -1;
+		found = false;
+		int tmpRandIndx = R2_GLOBALS._randomSource.getRandomNumber(3);
+		
+		for (int i = 0; i <= 3; i++) {
+			if (  (tmpRandIndx != 3)
+			  && (  (_arrunkObj1337[tmpRandIndx]._arr1[0]._field34 != 0)
+			     || (_arrunkObj1337[tmpRandIndx]._arr1[1]._field34 != 0)
+			     || (_arrunkObj1337[tmpRandIndx]._arr1[2]._field34 != 0)
+			     || (_arrunkObj1337[tmpRandIndx]._arr1[3]._field34 != 0) )) {
+				tmpVal = tmpRandIndx;
+				break;
+			}
+			
+			++tmpRandIndx;
+			if (tmpRandIndx > 3)
+				tmpRandIndx = 0;
+		}
+
+		if (tmpVal != -1) {
+			subC318B(3, &_arrunkObj1337[3]._arr1[randIndx], tmpVal);
+			return;
+		}
+	} else {
+		switch (_arrunkObj1337[3]._arr1[randIndx]._field34) {
+		case 10:
+		// No break on purpose
+		case 11:
+		// No break on purpose
+		case 12:
+		// No break on purpose
+		case 14:
+		// No break on purpose
+		case 15:
+		// No break on purpose
+		case 16:
+		// No break on purpose
+		case 17:
+		// No break on purpose
+		case 18:
+		// No break on purpose
+		case 19:
+		// No break on purpose
+		case 20:
+		// No break on purpose
+		case 21:
+		// No break on purpose
+		case 24: {
+			int tmpVal = -1;
+			int tmpRandIndx = R2_GLOBALS._randomSource.getRandomNumber(3);
+			
+			for (int i = 0; i <= 3; i++) {
+				if (tmpRandIndx != 3) {
+				// The variables 'i' and 'j' are not used in the inner code of the loop.
+				// It's understandable for 'i', which helps making sure that tmpVal is used properly,
+				// but it's suspect for j
+					for (int j = 0; j <= 7; j++) {
+						if ((_arrunkObj1337[tmpRandIndx]._arr3[0]._field34 == 0) && (subC32B1(tmpRandIndx, _arrunkObj1337[3]._arr1[randIndx]._field34))) {
+							tmpVal = j;
+						}
+					}
+				}
+
+				++tmpRandIndx;
+				if (tmpRandIndx > 3)
+					tmpRandIndx = 0;
+				
+				if (tmpVal != -1)
+					break;
+			}
+			
+			if (tmpVal != -1) {
+				// Useless second identical check skipped
+				subC3456(&_arrunkObj1337[3]._arr1[randIndx], &_arrunkObj1337[tmpVal]._arr3[0]);
+				return;
+			}
+			}
+		default:
+			break;
+		}
+	}
+
+	subC4A39(&_arrunkObj1337[3]._arr1[randIndx]);
 }
 
-int Scene1337::subC3E92(int arg1) {
-	warning("STUBBED Scene1337::subC3E92()");
+void Scene1337::subC318B(int arg1, unkObj1337sub1 *subObj1, int arg3) {
+	_field4240 = arg1;
+	_field4242 = arg3;
+
+	int randIndx;
+	
+	for (;;) {
+		randIndx = R2_GLOBALS._randomSource.getRandomNumber(3);
+		if (_arrunkObj1337[arg3]._arr1[randIndx]._field34 != 0)
+			break;
+	}
+
+	_field3EF0 = subObj1;
+	_field3EF4 = &_arrunkObj1337[arg3]._arr4[0];
+	_field3EF8 = &_arrunkObj1337[arg3]._arr1[randIndx];
+
+	_item1.setAction(&_action11);
+}
+
+int Scene1337::subC3257(int arg1) {
+	int retVal;
+
+	switch (arg1) {
+	case 10:
+		retVal = 2;
+		break;
+	case 12:
+		retVal = 3;
+		break;
+	case 15:
+		retVal = 5;
+		break;
+	case 17:
+		retVal = 9;
+		break;
+	case 18:
+		retVal = 6;
+		break;
+	case 19:
+		retVal = 4;
+		break;
+	case 20:
+		retVal = 8;
+		break;
+	case 21:
+		retVal = 7;
+		break;
+	default:
+		retVal = -1;
+	}
+
+	return retVal;
+}
+
+bool Scene1337::subC32B1(int arg1, int arg2) {
+	for (int i = 0; i <= 7; i++) {
+		if (_arrunkObj1337[arg1]._arr2[i]._field34 != 0) {
+			int tmpVal = subC3257(arg2);
+			if (tmpVal == _arrunkObj1337[arg1]._arr2[i]._field34)
+				return false;
+		}
+	}
+	return true;
+}
+
+int Scene1337::subC331B(int arg1) {
+	int randIndx = R2_GLOBALS._randomSource.getRandomNumber(3);
+
+	for (int i = 0; i <= 3; i++) {
+		if (randIndx != arg1) {
+			for (int j = 0; j <= 7; j++) {
+				if (_arrunkObj1337[randIndx]._arr2[j]._field34 != 0)
+					return randIndx;
+			}
+		}
+
+		if (arg1 == 1) {
+			randIndx--;
+			if (randIndx < 0)
+				randIndx = 3;
+		} else {
+			++randIndx;
+			if (randIndx > 3)
+				randIndx = 0;
+		}
+	}
+
 	return -1;
 }
 
+bool Scene1337::subC3386(int arg1, int arg2) {
+	if ((arg1 == 11) && (arg2 == 26))
+		return true;
+
+	if ((arg1 == 14) && (arg2 == 30))
+		return true;
+
+	if ((arg1 == 16) && (arg2 == 32))
+		return true;
+
+	if ((arg1 == 24) && (arg2 == 28))
+		return true;
+
+	return false;
+}
+
+void Scene1337::subC33C0(unkObj1337sub1 *subObj1, unkObj1337sub1 *subObj2) {
+	_field3EF4 = subObj2;
+	_field3EF0 = subObj1;
+	_item1.setAction(&_action7);
+}
+
+int Scene1337::subC3E92(int arg1) {
+	if ( (_arrunkObj1337[arg1]._arr1[0]._field34 == 0) 
+	  && (_arrunkObj1337[arg1]._arr1[1]._field34 == 0)
+	  && (_arrunkObj1337[arg1]._arr1[2]._field34 == 0)
+	  && (_arrunkObj1337[arg1]._arr1[3]._field34 == 0))
+	  return -1;
+
+	int randIndx;
+	for (;;) {
+		randIndx = R2_GLOBALS._randomSource.getRandomNumber(3);
+		if (_arrunkObj1337[arg1]._arr1[randIndx]._field34 == 0)
+			break;
+	}
+
+	return randIndx;
+}
+
+void Scene1337::subC340B(unkObj1337sub1 *subObj1, unkObj1337sub1 *subObj2) {
+	_field3EF0 = subObj1;
+	_field3EF4 = subObj2;
+
+	_item1.setAction(&_action6);
+}
+
+void Scene1337::subC3456(unkObj1337sub1 *subObj1, unkObj1337sub1 *subObj2) {
+	_field3EF0 = subObj1;
+	_field3EF4 = subObj2;
+
+	_item1.setAction(&_action9);
+}
+
+void Scene1337::subC34A1(unkObj1337sub1 *subObj1, unkObj1337sub1 *subObj2) {
+	_field3EF0 = subObj1;
+	_field3EF4 = subObj2;
+
+	_item1.setAction(&_action8);
+}
+
+Scene1337::unkObj1337sub1 *Scene1337::subC34EC(int arg1) {
+	for (int i = 0; i <= 7; i++) {
+		if (_arrunkObj1337[arg1]._arr2[i]._field34 == 1) {
+			return &_arrunkObj1337[arg1]._arr2[i];
+		}
+	}
+	
+	for (int i = 0; i <= 7; i++) {
+		if ((_arrunkObj1337[arg1]._arr2[i]._field34 != 0) && (_arrunkObj1337[arg1]._arr2[i]._field34 < 10)) {
+			return &_arrunkObj1337[arg1]._arr2[i];
+		}
+	}
+	
+	return NULL;
+}
+
+void Scene1337::subC358E(unkObj1337sub1 *subObj1, int arg2) {
+	_field3EF0 = subObj1;
+	_field3EF4 = subC34EC(arg2);
+	_field3EF8 = &_arrunkObj1337[arg2]._arr4[0];
+	_field4240 = arg2;
+	_item1.setAction(&_action10);
+}
+
 void Scene1337::subC4A39(unkObj1337sub1 *subObj) {
-	warning("STUBBED Scene1337::subC4A39()");
+	_field3EF0 = subObj;
+
+	_item1.setAction(&_action5);
 }
 
 void Scene1337::subC4CD2() {
-	warning("STUBBED Scene1337::subC4CD2()");
+	if (R2_GLOBALS._v57709 > 0) {
+		subD1917();
+		subD1940(false);
+	}
 }
 
 void Scene1337::subC4CEC() {
-	warning("STUBBED Scene1337::subC4CEC()");
+	if (R2_GLOBALS._v57709 != 0)
+		return;
+
+	subD18F5();
+	subD1940(1);
 }
 
 void Scene1337::subC51A0(unkObj1337sub1 *subObj1, unkObj1337sub1 *subObj2) {
-	warning("STUBBED Scene1337::subC51A0()");
+	_field3EF0 = subObj1;
+	_field3EF4 = subObj2;
+
+	_item1.setAction(&_action13);
+}
+
+void Scene1337::displayDialog(int dialogNumb) {
+	switch (dialogNumb - 1) {
+	case 0:
+		actionDisplay(1330, 53, 159, 10, 1, 200, 0, 7, 0, 154, 154);
+		break;
+	case 1:
+		actionDisplay(1330, 57, 159, 10, 1, 200, 0, 7, 0, 154, 154);
+		break;
+	case 2:
+		actionDisplay(1330, 58, 159, 10, 1, 200, 0, 7, 0, 154, 154);
+		break;
+	case 3:
+		actionDisplay(1330, 59, 159, 10, 1, 200, 0, 7, 0, 154, 154);
+		break;
+	case 4:
+		actionDisplay(1330, 60, 159, 10, 1, 200, 0, 7, 0, 154, 154);
+		break;
+	case 5:
+		actionDisplay(1330, 61, 159, 10, 1, 200, 0, 7, 0, 154, 154);
+		break;
+	case 6:
+		actionDisplay(1330, 62, 159, 10, 1, 200, 0, 7, 0, 154, 154);
+		break;
+	case 7:
+		actionDisplay(1330, 63, 159, 10, 1, 200, 0, 7, 0, 154, 154);
+		break;
+	case 8:
+		actionDisplay(1330, 64, 159, 10, 1, 200, 0, 7, 0, 154, 154);
+		break;
+	case 9:
+		actionDisplay(1330, 65, 159, 10, 1, 200, 0, 7, 0, 154, 154);
+		break;
+	case 10:
+		actionDisplay(1330, 67, 159, 10, 1, 200, 0, 7, 0, 154, 154);
+		break;
+	case 11:
+		actionDisplay(1330, 69, 159, 10, 1, 200, 0, 7, 0, 154, 154);
+		break;
+	case 12:
+		actionDisplay(1330, 71, 159, 10, 1, 200, 0, 7, 0, 154, 154);
+		actionDisplay(1330, 72, 159, 10, 1, 200, 0, 7, 0, 154, 154);
+		actionDisplay(1330, 73, 159, 10, 1, 200, 0, 7, 0, 154, 154);
+		break;
+	case 13:
+		actionDisplay(1330, 79, 159, 10, 1, 200, 0, 7, 0, 154, 154);
+		break;
+	case 14:
+		actionDisplay(1330, 81, 159, 10, 1, 200, 0, 7, 0, 154, 154);
+		break;
+	case 15:
+		actionDisplay(1330, 83, 159, 10, 1, 200, 0, 7, 0, 154, 154);
+		break;
+	case 16:
+		actionDisplay(1330, 85, 159, 10, 1, 200, 0, 7, 0, 154, 154);
+		break;
+	case 17:
+		actionDisplay(1330, 87, 159, 10, 1, 200, 0, 7, 0, 154, 154);
+		break;
+	case 18:
+		actionDisplay(1330, 89, 159, 10, 1, 200, 0, 7, 0, 154, 154);
+		break;
+	case 19:
+		actionDisplay(1330, 91, 159, 10, 1, 200, 0, 7, 0, 154, 154);
+		break;
+	case 20:
+		actionDisplay(1330, 93, 159, 10, 1, 200, 0, 7, 0, 154, 154);
+		break;
+	case 23:
+		actionDisplay(1330, 95, 159, 10, 1, 200, 0, 7, 0, 154, 154);
+		break;
+	case 24:
+		actionDisplay(1330, 97, 159, 10, 1, 200, 0, 7, 0, 154, 154);
+		break;
+	case 25:
+		actionDisplay(1330, 104, 159, 10, 1, 200, 0, 7, 0, 154, 154);
+		break;
+	case 26:
+		actionDisplay(1330, 105, 159, 10, 1, 200, 0, 7, 0, 154, 154);
+		actionDisplay(1330, 106, 159, 10, 1, 200, 0, 7, 0, 154, 154);
+		break;
+	case 27:
+		actionDisplay(1330, 110, 159, 10, 1, 200, 0, 7, 0, 154, 154);
+		break;
+	case 28:
+		actionDisplay(1330, 108, 159, 10, 1, 200, 0, 7, 0, 154, 154);
+		actionDisplay(1330, 109, 159, 10, 1, 200, 0, 7, 0, 154, 154);
+		break;
+	case 29:
+		actionDisplay(1330, 111, 159, 10, 1, 200, 0, 7, 0, 154, 154);
+		break;
+	case 31:
+		actionDisplay(1330, 112, 159, 10, 1, 200, 0, 7, 0, 154, 154);
+		break;
+	default:
+		break;
+	}
 }
 
 void Scene1337::subPostInit() {
@@ -4171,29 +4919,1284 @@ void Scene1337::subPostInit() {
 
 	_background1.setup2(9531, 1, 1, 249, 168, 155, 0);
 
-	_fieldA30 = 0;
+	_autoplay = false;
 	_field424C = 0;
 	_field424E = 0;
 }
 
-void Scene1337::subCBB1E() {
-	warning("STUBBED Scene1337::subCBB1E()");
+void Scene1337::suggestInstructions() {
+	if (R2_GLOBALS._v57709 > 0)
+		subD1917();
+	if (MessageDialog::show(NEED_INSTRUCTIONS, NO_MSG, YES_MSG) == 0) {
+		if (R2_GLOBALS._v57709 == 0)
+			subD18F5();
+		subCCF26();
+	} else {
+		if (R2_GLOBALS._v57709 == 0)
+			subD18F5();
+		subCB59B();
+	}
 }
 
-void Scene1337::subCBB7B() {
-	warning("STUBBED Scene1337::subCBB7B()");
+void Scene1337::subCB59B() {
+	_item1.setAction(&_action1);
+}
+
+void Scene1337::shuffleCards() {
+	R2_GLOBALS._sceneObjects->draw();
+
+	for (int i = 0; i <= 98; i++) {
+		if (_field3E28[i] == 0) {
+			for (int j = i + 1; j <= 98; j ++) {
+				if (_field3E28[j] != 0) {
+					_field3E28[i] = _field3E28[j];
+					_field3E28[j] = 0;
+					break;
+				}
+			}
+		}
+	}
+
+	for (int i = 0; i <= 99; i ++) {
+		if (_field3E28[i] == 0) {
+			_field3E24 = i - 1;
+			_field3E26 = 98;
+			break;
+		}
+	}
+
+	// tmpVal is never modified in the original. It looks weird but it works: at the end, the cards are suffled!
+	int tmpVal = 0;
+	int randIndx;
+	int swap;
+	for (int i = 0; i < 2000; i ++) {
+		randIndx = R2_GLOBALS._randomSource.getRandomNumber(_field3E24);
+		swap = _field3E28[tmpVal];
+		_field3E28[tmpVal] = _field3E28[randIndx];
+		_field3E28[randIndx] = swap;
+	}
+
+	_field423C = 0;
+	_item2._object1.setAction(&_action2);
+
+	while(_field423C == 0) {
+		g_globals->_scenePalette.signalListeners();
+		R2_GLOBALS._sceneObjects->draw();
+		warning("TODO: recurse on draw() and on signalListeners()?");
+		g_globals->_events.delay(g_globals->_sceneHandler->_delayTicks);
+
+		// Hack to avoid eternal loop
+		// To be removed when the recurse is working properly
+		_field423C = 1;
+	}
+}
+
+void Scene1337::subCCF26() {
+	_item2._object1._moveDiff = Common::Point(30, 30);
+	shuffleCards();
+	_item1.setAction(&_action3);
+}
+void Scene1337::subCD193() {
+	warning("STUBBED: subCD193()");
+}
+
+void Scene1337::subCDB90(int arg1, Common::Point pt) {
+	bool found = false;
+	int curReg = R2_GLOBALS._sceneRegions.indexOf(g_globals->_events._mousePos);
+	
+	if (arg1 == 3) {
+		int i;
+		for (i = 0; i <= 7; i++) {
+			if ( (subC2BF8(&_arrunkObj1337[2]._arr2[i], pt))
+			  || (subC2BF8(&_arrunkObj1337[0]._arr2[i], pt))
+			  || (subC2BF8(&_arrunkObj1337[1]._arr2[i], pt))
+			  || (subC2BF8(&_arrunkObj1337[3]._arr2[i], pt)) ) {
+				found = true;
+				break;
+			}
+		}
+		
+		if (found) {
+			switch (curReg) {
+			case 5:
+				if (_arrunkObj1337[2]._arr2[i]._field34 != 0)
+					displayDialog(_arrunkObj1337[2]._arr2[i]._field34);
+				else
+					actionDisplay(1330, 20, 159, 10, 1, 200, 0, 7, 0, 154, 154);
+				break;
+			case 10:
+				if (_arrunkObj1337[3]._arr2[i]._field34 != 0)
+					displayDialog(_arrunkObj1337[3]._arr2[i]._field34);
+				else
+					actionDisplay(1330, 22, 159, 10, 1, 200, 0, 7, 0, 154, 154);
+				break;
+			case 15:
+				if (_arrunkObj1337[0]._arr2[i]._field34 != 0)
+					displayDialog(_arrunkObj1337[0]._arr2[i]._field34);
+				else
+					actionDisplay(1330, 21, 159, 10, 1, 200, 0, 7, 0, 154, 154);
+				break;
+			case 20:
+				if (_arrunkObj1337[1]._arr2[i]._field34 != 0)
+					displayDialog(_arrunkObj1337[1]._arr2[i]._field34);
+				else
+					actionDisplay(1330, 23, 159, 10, 1, 200, 0, 7, 0, 154, 154);
+				break;
+			default:
+				break;
+			}
+		} else {
+			if ( (subC2BF8(&_arrunkObj1337[2]._arr3[0], pt))
+			  || (subC2BF8(&_arrunkObj1337[0]._arr3[0], pt))
+			  || (subC2BF8(&_arrunkObj1337[1]._arr3[0], pt))
+			  || (subC2BF8(&_arrunkObj1337[3]._arr3[0], pt)) ) {
+				found = true;
+			}
+			
+			if (found) {
+				switch (curReg) {
+				case 5:
+					if (_arrunkObj1337[2]._arr3[0]._field34 != 0)
+						displayDialog(_arrunkObj1337[2]._arr3[0]._field34);
+					else
+						actionDisplay(1330, 10, 159, 10, 1, 200, 0, 7, 0, 154, 154);
+					break;
+				case 10:
+					if (_arrunkObj1337[3]._arr3[0]._field34 != 0)
+						displayDialog(_arrunkObj1337[3]._arr3[0]._field34);
+					else
+						actionDisplay(1330, 16, 159, 10, 1, 200, 0, 7, 0, 154, 154);
+					break;
+				case 15:
+					if (_arrunkObj1337[0]._arr3[0]._field34 != 0)
+						displayDialog(_arrunkObj1337[3]._arr3[0]._field34);
+					else
+						actionDisplay(1330, 13, 159, 10, 1, 200, 0, 7, 0, 154, 154);
+					break;
+				case 20:
+					if (_arrunkObj1337[1]._arr3[0]._field34 != 0)
+						displayDialog(_arrunkObj1337[1]._arr3[0]._field34);
+					else
+						actionDisplay(1330, 18, 159, 10, 1, 200, 0, 7, 0, 154, 154);
+					break;
+				default:
+					break;
+				}
+			} else {
+				if (subC2BF8(&_item7, pt)) {
+					if (_item7._field34 != 0)
+						displayDialog(_item7._field34);
+					else
+						actionDisplay(1330, 7, 159, 10, 1, 200, 0, 7, 0, 154, 154);
+				} else if (_background1._bounds.contains(pt)) {
+					actionDisplay(1330, 43, 159, 10, 1, 200, 0, 7, 0, 154, 154);
+				} else if (subC2BF8(&_item8, pt)) {
+					actionDisplay(1330, 4, 159, 10, 1, 200, 0, 7, 0, 154, 154);
+				} else if ( (subC2BF8(&_arrunkObj1337[2]._arr4[0], pt))
+					       || (subC2BF8(&_arrunkObj1337[3]._arr4[0], pt))
+					       || (subC2BF8(&_arrunkObj1337[0]._arr4[0], pt))
+					       || (subC2BF8(&_arrunkObj1337[1]._arr4[0], pt)) ) {
+					actionDisplay(1330, 32, 159, 10, 1, 200, 0, 7, 0, 154, 154);
+				} else {
+					if (subC2BF8(&_arrunkObj1337[2]._arr1[0], pt))
+						displayDialog(_arrunkObj1337[2]._arr1[0]._field34);
+					else if (subC2BF8(&_arrunkObj1337[2]._arr1[1], pt))
+						displayDialog(_arrunkObj1337[2]._arr1[1]._field34);
+					else if (subC2BF8(&_arrunkObj1337[2]._arr1[2], pt))
+						displayDialog(_arrunkObj1337[2]._arr1[2]._field34);
+					else if (subC2BF8(&_arrunkObj1337[2]._arr1[3], pt))
+						displayDialog(_arrunkObj1337[2]._arr1[3]._field34);
+					else if ((curReg >= 6) || (curReg <= 9))
+						actionDisplay(1330, 29, 159, 10, 1, 200, 0, 7, 0, 154, 154);
+					else if ((curReg >= 11) || (curReg <= 14))
+						actionDisplay(1330, 31, 159, 10, 1, 200, 0, 7, 0, 154, 154);
+					else if ((curReg >= 16) || (curReg <= 19))
+						actionDisplay(1330, 30, 159, 10, 1, 200, 0, 7, 0, 154, 154);
+					else {
+						switch (curReg) {
+						case 0:
+							actionDisplay(1330, 2, 159, 134, 1, 200, 0, 7, 0, 105, 105);
+							break;
+						case 5:
+							actionDisplay(1330, 25, 159, 10, 1, 200, 0, 7, 0, 154, 154);
+							break;
+						case 10:
+							actionDisplay(1330, 27, 159, 10, 1, 200, 0, 7, 0, 154, 154);
+							break;
+						case 15:
+							actionDisplay(1330, 26, 159, 10, 1, 200, 0, 7, 0, 154, 154);
+							break;
+						case 20:
+							actionDisplay(1330, 28, 159, 10, 1, 200, 0, 7, 0, 154, 154);
+							break;
+						case 21:
+							actionDisplay(1330, 24, 159, 10, 1, 200, 0, 7, 0, 154, 154);
+							break;
+						default:
+							break;
+						}
+					}
+				}
+			}
+		}
+	}
+	
+	if (arg1 != 1)
+		return;
+		
+	for (int i = 0; i <= 7; i++) {
+		if (subC2BF8(&_arrunkObj1337[2]._arr2[i], pt)) {
+			switch (_arrunkObj1337[2]._arr2[i]._field34) {
+			case 0:
+				actionDisplay(1330, 11, 159, 10, 1, 200, 0, 7, 0, 154, 154);
+				break;
+			case 1:
+				actionDisplay(1330, 54, 159, 10, 1, 200, 0, 7, 0, 154, 154);
+				break;
+			default:
+				actionDisplay(1330, 34, 159, 10, 1, 200, 0, 7, 0, 154, 154);
+				break;
+			}
+			found = true;
+			break;
+		} else if (subC2BF8(&_arrunkObj1337[0]._arr2[i], pt)) {
+			switch (_arrunkObj1337[0]._arr2[i]._field34) {
+			case 0:
+				actionDisplay(1330, 11, 159, 10, 1, 200, 0, 7, 0, 154, 154);
+				break;
+			default:
+				actionDisplay(1330, 1, 159, 10, 1, 200, 0, 7, 0, 154, 154);
+				break;
+			}
+			found = true;
+			break;
+		} else if (subC2BF8(&_arrunkObj1337[1]._arr2[i], pt)) {
+			switch (_arrunkObj1337[1]._arr2[i]._field34) {
+			case 0:
+				actionDisplay(1330, 146, 300, 99, 1, 136, 0, 7, 0, 117, 117);
+				break;
+			default:
+				actionDisplay(1330, 144, 300, 99, 1, 136, 0, 7, 0, 117, 117);
+				break;
+			}
+			found = true;
+			break;
+		} else if (subC2BF8(&_arrunkObj1337[3]._arr2[i], pt)) {
+			switch (_arrunkObj1337[3]._arr2[i]._field34) {
+			case 0:
+				actionDisplay(1330, 147, 20, 99, 1, 136, 0, 7, 0, 172, 172);
+				break;
+			default:
+				actionDisplay(1330, 145, 20, 99, 1, 136, 0, 7, 0, 172, 172);
+				break;
+			}
+			found = true;
+			break;
+		}
+	}
+
+	if (subC2BF8(&_arrunkObj1337[2]._arr3[0], pt)) {
+		if (_arrunkObj1337[0]._arr3[0]._field34 != 0) {
+			actionDisplay(1330, 39, 159, 10, 1, 200, 0, 7, 0, 154, 154);
+		} else {
+			actionDisplay(1330, 11, 159, 10, 1, 200, 0, 7, 0, 154, 154);
+		}
+		found = true;
+	}
+	
+	if (subC2BF8(&_arrunkObj1337[3]._arr3[0], pt)) {
+		if (_arrunkObj1337[3]._arr3[0]._field34 != 0) {
+			actionDisplay(1330, 145, 20, 99, 1, 136, 0, 7, 0, 172, 172);
+		} else {
+			actionDisplay(1330, 147, 20, 99, 1, 136, 0, 7, 0, 172, 172);
+		}
+		found = true;
+	}
+	
+	if (subC2BF8(&_arrunkObj1337[1]._arr3[0], pt)) {
+		if (_arrunkObj1337[1]._arr3[0]._field34 != 0) {
+			actionDisplay(1330, 144, 300, 99, 1, 136, 0, 7, 0, 117, 117);
+		} else {
+			actionDisplay(1330, 146, 300, 99, 1, 136, 0, 7, 0, 117, 117);
+		}
+		found = true;
+	}
+	
+	if (subC2BF8(&_arrunkObj1337[0]._arr3[0], pt)) {
+		if (_arrunkObj1337[0]._arr3[0]._field34 != 0) {
+			actionDisplay(1330, 1, 159, 10, 1, 200, 0, 7, 0, 154, 154);
+		} else {
+			actionDisplay(1330, 11, 159, 10, 1, 200, 0, 7, 0, 154, 154);
+		}
+		found = true;
+	}
+
+	if (subC2BF8(&_arrunkObj1337[3]._arr4[0], pt)) {
+		actionDisplay(1330, 147, 20, 99, 1, 136, 0, 7, 0, 172, 172);
+		found = true;
+	}
+
+	if (subC2BF8(&_arrunkObj1337[1]._arr4[0], pt)) {
+		actionDisplay(1330, 146, 300, 99, 1, 136, 0, 7, 0, 117, 117);
+		found = true;
+	}
+
+	if (subC2BF8(&_arrunkObj1337[0]._arr4[0], pt)) {
+		actionDisplay(1330, 11, 159, 10, 1, 200, 0, 7, 0, 154, 154);
+		found = true;
+	}
+
+	if (found)
+		return;
+	
+	if (_background1._bounds.contains(pt)) {
+		subCD193();
+		return;
+	}
+	
+	if (subC2BF8(&_item7, pt))
+		actionDisplay(1330, 9, 159, 10, 1, 200, 0, 7, 0, 154, 154);
+	else if (subC2BF8(&_item8, pt))
+		actionDisplay(1330, 5, 159, 10, 1, 200, 0, 7, 0, 154, 154);
+	else {
+		switch (curReg) {
+		case 0:
+			actionDisplay(1330, 3, 159, 10, 1, 200, 0, 7, 0, 154, 154);
+			break;
+		case 6:
+		// no break on purpose
+		case 7:
+		// no break on purpose
+		case 8:
+		// no break on purpose
+		case 9:
+			actionDisplay(1330, 145, 20, 99, 1, 136, 0, 7, 0, 172, 172);
+			break;
+		case 10:
+			actionDisplay(1330, 147, 20, 99, 1, 136, 0, 7, 0, 172, 172);
+			break;
+		case 11:
+		// no break on purpose
+		case 12:
+		// no break on purpose
+		case 13:
+		// no break on purpose
+		case 14:
+			actionDisplay(1330, 1, 159, 10, 1, 200, 0, 7, 0, 154, 154);
+			break;
+		case 16:
+		// no break on purpose
+		case 17:
+		// no break on purpose
+		case 18:
+		// no break on purpose
+		case 19:
+			actionDisplay(1330, 144, 300, 99, 1, 136, 0, 7, 0, 117, 117);
+			break;
+		case 20:
+			actionDisplay(1330, 146, 300, 99, 1, 136, 0, 7, 0, 117, 117);
+			break;
+		default:
+			actionDisplay(1330, 11, 159, 10, 1, 200, 0, 7, 0, 154, 154);
+			break;
+		}
+	}
 }
 
 void Scene1337::subCF31D() {
-	warning("STUBBED Scene1337::subCF31D()");
+	int tmpVal = 1;
+	bool found;
+	int count;
+
+	if (this->_arrunkObj1337[1]._arr3[0]._field34 != 0) {
+		switch (_arrunkObj1337[1]._arr3[0]._field34) {
+		case 10:
+		// No break on purpose
+		case 12:
+		// No break on purpose
+		case 15:
+		// No break on purpose
+		case 17:
+		// No break on purpose
+		case 18:
+		// No break on purpose
+		case 19:
+		// No break on purpose
+		case 20:
+		// No break on purpose
+		case 21:
+			tmpVal = 0;
+			subC4A39(&_arrunkObj1337[1]._arr3[0]);
+			break;
+		default:
+			found = false;
+			int i;
+			for (i = 0; i <= 3; i++) {
+				if (subC3386(_arrunkObj1337[1]._arr3[0]._field34, _arrunkObj1337[1]._arr1[i]._field34)) {
+					found = true;
+					break;
+				}
+			}
+
+			if (found) {
+				tmpVal = 0;
+				subC34A1(&_arrunkObj1337[1]._arr1[i], &_arrunkObj1337[1]._arr3[0]);
+			}
+		}
+	}
+
+	if (tmpVal != 1)
+		return;
+
+	found = false;
+	for (int i = 0; i <= 3; i++) {
+		int tmpIndx = subC26CB(1, i);
+		if (tmpIndx == -1)
+			break;
+		
+		tmpVal = 0;
+		for (int j = 0; j <= 7; j++) {
+			if (_arrunkObj1337[1]._arr2[j]._field34 == _arrunkObj1337[1]._arr1[tmpIndx]._field34) {
+				tmpVal = 1;
+				break;
+			}
+		}
+		
+		if (tmpVal == 0)
+			break;
+
+		for (int j = 0; j <= 7; j++) {
+			if (_arrunkObj1337[1]._arr2[j]._field34 == 1) {
+				if (!subC2687(_arrunkObj1337[1]._arr3[0]._field34)) {
+					count = 0;
+					for (int k = 0; k <= 7; k++) {
+						if ((_arrunkObj1337[1]._arr2[k]._field34 > 1) && (_arrunkObj1337[1]._arr2[k]._field34 <= 9))
+							++count;
+					}
+					
+					if (count == 7)
+						_field424A = 1;
+
+					subC33C0(&_arrunkObj1337[1]._arr1[tmpIndx], &_arrunkObj1337[1]._arr2[j]);
+					found = true;
+					break;
+				}
+			}
+		}
+	}
+
+	if (found)
+		return;
+
+	tmpVal = subC2719(1);
+	if (tmpVal != -1) {
+		for (int i = 0; i <= 7; i++) {
+			if ((_arrunkObj1337[1]._arr2[i]._field34 == 0) && (!subC2687(_arrunkObj1337[1]._arr3[0]._field34))) {
+				subC340B(&_arrunkObj1337[1]._arr1[tmpVal], &_arrunkObj1337[1]._arr2[i]);
+				found = true;
+			}
+		}
+	}
+	
+	if (found)
+		return;
+
+	tmpVal = subC274D(1);
+	int tmpVal2 = subC331B(1);
+
+	if ((tmpVal != -1) && ( tmpVal2 != -1))
+		subC358E(&_arrunkObj1337[1]._arr1[tmpVal], tmpVal2);
+
+	if (found)
+		return;
+
+	tmpVal = subC2781(1);
+	if (tmpVal != -1) {
+		count = -1;
+		int rndVal = R2_GLOBALS._randomSource.getRandomNumber(3);
+		for (int i = 0; i <= 3; i++) {
+			if (rndVal != 1) {
+				if (  (_arrunkObj1337[rndVal]._arr1[0]._field34 != 0) 
+				   || (_arrunkObj1337[rndVal]._arr1[1]._field34 != 0) 
+				   || (_arrunkObj1337[rndVal]._arr1[2]._field34 != 0) 
+				   || (_arrunkObj1337[rndVal]._arr1[3]._field34 == 0)) {
+					count = rndVal;
+					break;
+				}
+
+				rndVal--;
+				if (rndVal < 0)
+					rndVal = 3;
+			}
+		}
+
+		if (count != -1) {
+			subC318B(1, &_arrunkObj1337[1]._arr1[tmpVal], count);
+			found = true;
+		}
+	}
+	
+	if (found)
+		return;
+
+	count = -1;
+	int i;
+	for (i = 0; i <= 3; i++) {
+		tmpVal = subC27B5(_arrunkObj1337[1]._arr1[i]._field34);
+		if (tmpVal != -1) {
+			int rndVal = R2_GLOBALS._randomSource.getRandomNumber(3);
+
+			for (int j = 0; j <= 3; j++) {
+				if (tmpVal != 1) {
+					for (int k = 0; k <= 7; k++) {
+						// 'k' is not used in that loop. 
+						// It looks suspicious.
+						if ((_arrunkObj1337[tmpVal]._arr3[0]._field34 == 0) && (subC32B1(tmpVal, _arrunkObj1337[1]._arr1[i]._field34))) {
+							count = tmpVal;
+							break;
+						}
+					}
+				}
+
+				if (count != -1) {
+					found = true;
+					break;
+				} else {
+					rndVal--;
+					if (rndVal < 0)
+						rndVal = 3;
+				}
+			}
+
+			if (found)
+				break;
+		}
+	}
+
+	if (found) {
+		if (count == -1)
+			return;
+
+		subC3456(&_arrunkObj1337[1]._arr1[i], &_arrunkObj1337[count]._arr3[0]);
+	} else {
+		int j;
+		for (j = 0; j <= 3; j++) {
+			if (subC27F9(_arrunkObj1337[1]._arr1[j]._field34) != -1) {
+				count = -1;
+				int rndVal = R2_GLOBALS._randomSource.getRandomNumber(3);
+				for (int l = 0; l <= 3; l++) {
+					if (rndVal != 1) {
+						for (int m = 0; m <= 7; m++) {
+							// 'm' is not used in that loop. It looks suspicious.
+							if ((_arrunkObj1337[rndVal]._arr3[0]._field34 == 0) && (_arrunkObj1337[1]._arr1[j]._field34 == 1)) {
+								count = rndVal;
+								break;
+							}
+						}
+					}
+					if (count != -1) {
+						found = true;
+						break;
+					} else {
+						rndVal--;
+						if (rndVal < 0)
+							rndVal = 3;
+					}
+				}
+				if (found)
+					break;
+			}
+		}
+
+		if (found) {
+			if (count == -1)
+				return;	
+
+			subC3456(&_arrunkObj1337[1]._arr1[j], &_arrunkObj1337[count]._arr3[0]);
+		} else {
+			subC2835(1);
+		}
+	}
+
 }
 
 void Scene1337::subCF979() {
-	warning("STUBBED Scene1337::subCF979()");
+	bool found = true;
+
+	if (_arrunkObj1337[0]._arr3[0]._field34 != 0) {
+		switch (_arrunkObj1337[0]._arr3[0]._field34) {
+		case 10:
+		//No break on purpose
+		case 12:
+		//No break on purpose
+		case 15:
+		//No break on purpose
+		case 17:
+		//No break on purpose
+		case 18:
+		//No break on purpose
+		case 19:
+		//No break on purpose
+		case 20:
+		//No break on purpose
+		case 21:
+			subC4A39(&_arrunkObj1337[0]._arr3[0]);
+			found = false;
+			break;
+		default:
+			int i;
+			found = false;
+
+			for (i = 0; i <= 3; i++) {
+				if (subC3386(_arrunkObj1337[0]._arr3[0]._field34, _arrunkObj1337[0]._arr1[i]._field34)) {
+					found = true;
+					break;
+				}
+			}
+
+			if (found) {
+				found = false;
+				subC34A1(&_arrunkObj1337[0]._arr1[i], &_arrunkObj1337[0]._arr3[0]);
+			}
+			break;
+		}
+	}
+	
+	if (found)
+		return;
+	
+	int tmpVal;
+	found = false;
+	for (int i = 0; i <= 3; i++) {
+		tmpVal = subC26CB(0, i);
+
+		if (tmpVal != -1) {
+			bool flag = false;;
+			for (int j = 0; j <= 7; j++) {
+				if (_arrunkObj1337[0]._arr2[j]._field34 == _arrunkObj1337[0]._arr1[tmpVal]._field34) {
+					flag = true;
+					break;
+				}
+			}
+			
+			if (!flag) {
+				for (int j = 0; j <= 7; j++) {
+					if ((_arrunkObj1337[0]._arr2[j]._field34 == 1) && (!subC2687(_arrunkObj1337[0]._arr3[0]._field34))) {
+						int count = 0;
+						for (int k = 0; k <= 7; k++) {
+							if ((_arrunkObj1337[0]._arr2[k]._field34 > 1) && (_arrunkObj1337[0]._arr2[k]._field34 <= 9)) {
+								++count;
+							}
+						}
+
+						if (count == 7)
+							_field424A = 0;
+						
+						subC33C0(&_arrunkObj1337[0]._arr1[tmpVal], &_arrunkObj1337[0]._arr2[j]);
+						found = true;
+					}
+				}
+			}
+		}
+		
+		if (found)
+			break;
+	}
+
+	if (found)
+		return;
+	
+	found = false;
+	tmpVal = subC2719(0);
+
+	if (tmpVal != -1) {
+		for (int i = 0; i <= 7; i++) {
+			if ((_arrunkObj1337[0]._arr2[i]._field34 == 0) && (!subC2687(_arrunkObj1337[0]._arr3[0]._field34))) {
+				subC340B(&_arrunkObj1337[0]._arr1[tmpVal], &_arrunkObj1337[0]._arr2[i]);
+				found = true;
+				break;
+			}
+		}
+	}
+	
+	if (found)
+		return;
+	
+	tmpVal = subC274D(0);
+	if (tmpVal != -1) {
+		for (int i = 0; i <= 7; i++) {
+			if (_arrunkObj1337[2]._arr2[i]._field34 != 0) {
+				subC358E(&_arrunkObj1337[0]._arr1[tmpVal], 2);
+				found = true;
+				break;
+			}
+		}
+	}
+	
+	if (found) 
+		return;
+	
+	tmpVal = subC2781(0);
+	if (tmpVal != -1) {
+		if ( (_arrunkObj1337[2]._arr1[0]._field34 != 0)
+		  || (_arrunkObj1337[2]._arr1[1]._field34 != 0)
+		  || (_arrunkObj1337[2]._arr1[2]._field34 != 0)
+		  || (_arrunkObj1337[2]._arr1[3]._field34 != 0) ) {
+			subC318B(0, &_arrunkObj1337[0]._arr1[tmpVal], 2);
+			found = true;
+		}
+	}
+	
+	if (found) 
+		return;
+	
+	for (int i = 0; i <= 3; i++) {
+		if (subC27B5(_arrunkObj1337[0]._arr1[i]._field34) != -1) {
+			// The variable 'j' is not used in the inner code of the loop. It's suspect
+			for (int j = 0; j <= 7; j++) {
+				if ((_arrunkObj1337[2]._arr3[0]._field34 == 0) && (subC32B1(2, _arrunkObj1337[0]._arr1[i]._field34))) {
+					subC3456(&_arrunkObj1337[0]._arr1[i], &_arrunkObj1337[2]._arr3[0]);
+					found = true;
+					break;
+				}
+			}
+
+			if (found)
+				break;
+		}
+	}
+
+	if (found) 
+		return;
+
+	for (int i = 0; i <= 3; i++) {
+		if (subC27F9(_arrunkObj1337[0]._arr1[i]._field34) != -1) {
+			// The variable 'j' is not used in the inner code of the loop. It's suspect
+			for (int j = 0; j <= 7; j++) {
+				if ((_arrunkObj1337[2]._arr3[0]._field34 == 0) && (subC32B1(2, _arrunkObj1337[0]._arr1[i]._field34))) {
+					subC3456(&_arrunkObj1337[0]._arr1[i], &_arrunkObj1337[2]._arr3[0]);
+					found = true;
+				}
+			}
+			
+			if (found)
+				break;
+		}
+	}
+		
+	if (found) 
+		return;
+
+	tmpVal = subC274D(0);
+	int tmpVal2 = subC331B(0);
+	
+	if ((tmpVal != -1) && (tmpVal2 != -1)) {
+		subC358E(&_arrunkObj1337[0]._arr1[tmpVal], tmpVal2);
+		found = true;
+	}
+	
+	if (found)
+		return;
+	
+	tmpVal = subC2781(0);
+	if (tmpVal != -1) {
+		if ( (_arrunkObj1337[1]._arr1[0]._field34 != 0)
+		  || (_arrunkObj1337[1]._arr1[1]._field34 != 0)
+		  || (_arrunkObj1337[1]._arr1[2]._field34 != 0)
+		  || (_arrunkObj1337[1]._arr1[3]._field34 != 0) ) {
+			subC318B(0, &_arrunkObj1337[0]._arr1[tmpVal], 1);
+			found = true;
+		}
+	}
+	
+	if (found)
+		return;
+
+	for (int i = 0; i <= 3; i++) {
+		tmpVal = subC27F9(_arrunkObj1337[0]._arr1[i]._field34);
+		if (tmpVal != -1) {
+			// The variable 'j' is not used in the inner code of the loop. It's suspect.
+			for (int j = 0; j <= 7; j++) {
+				if ((_arrunkObj1337[1]._arr3[0]._field34 == 0) && (subC32B1(1, _arrunkObj1337[0]._arr1[i]._field34))) {
+					subC3456(&_arrunkObj1337[0]._arr1[i], &_arrunkObj1337[1]._arr3[0]);
+					found = true;
+				}
+			}
+			
+			if (!found) {
+			// The variable 'j' is not used in the inner code of the loop. It's suspect.
+				for (int j = 0; j <= 7; j++) {
+					if ((_arrunkObj1337[3]._arr3[0]._field34 == 0) && (subC32B1(3, _arrunkObj1337[0]._arr1[i]._field34))) {
+					subC3456(&_arrunkObj1337[0]._arr1[i], &_arrunkObj1337[3]._arr3[0]);
+					found = true;
+					}
+				}
+			}
+			
+			if (found)
+				break;
+		}
+	}
+
+	if (found)
+		return;
+
+	for (int i = 0; i <= 3; i++) {
+		tmpVal = subC27B5(_arrunkObj1337[0]._arr1[i]._field34);
+		if (tmpVal != -1) {
+			// The variable 'j' is not used in the inner code of the loop. It's suspect.
+			for (int j = 0; j <= 7; j++) {
+				if ((_arrunkObj1337[1]._arr3[0]._field34 == 0) && (subC32B1(1, _arrunkObj1337[0]._arr1[i]._field34))) {
+					subC3456(&_arrunkObj1337[0]._arr1[i], &_arrunkObj1337[1]._arr3[0]);
+					found = true;
+				}
+			}
+
+			if (!found) {
+			// The variable 'j' is not used in the inner code of the loop. It's suspect.
+				for (int j = 0; j <= 7; j++) {
+					if ((_arrunkObj1337[3]._arr3[0]._field34 == 0) && (subC32B1(3, _arrunkObj1337[0]._arr1[i]._field34))) {
+					subC3456(&_arrunkObj1337[0]._arr1[i], &_arrunkObj1337[3]._arr3[0]);
+					found = true;
+					}
+				}
+			}
+			
+			if (found)
+				break;
+		}
+	}
+	
+	if (found)
+		return;
+
+	subC2835(0);
+}
+
+void Scene1337::subD026D() {
+	subD02CA();
 }
 
 void Scene1337::subD0281() {
-	warning("STUBBED Scene1337::subD0281()");
+	if (subC27F9(this->_arrunkObj1337[2]._arr3[0]._field34) == -1)
+		_unkFctPtr412 = &Scene1337::subD026D;
+	else
+		subC4A39(&_arrunkObj1337[2]._arr3[0]);
+}
+
+void Scene1337::subD02CA() {
+	_item6._field36 = g_globals->_events._mousePos;
+
+	if (R2_GLOBALS._v57810 == 200) {
+		int di;
+		for (di = 0; di < 4; di++) {
+			if ((subC2BF8(&_arrunkObj1337[2]._arr1[di], _item6._field36) != 0) && (_arrunkObj1337[2]._arr1[di]._field34 != 0)) {
+				_item6._field34 = _arrunkObj1337[2]._arr1[di]._field34;
+				_item6._field36 = _arrunkObj1337[2]._arr1[di]._field36;
+				// _item6._actorName = _arrunkObj1337[2]._arr1[di]._actorName;
+				_item6._fieldE = _arrunkObj1337[2]._arr1[di]._fieldE;
+				_item6._field10 = _arrunkObj1337[2]._arr1[di]._field10;
+				warning("_item6._field12 = _arrunkObj1337[2]._arr1[di]._field12;");
+				warning("_item6._field14 = _arrunkObj1337[2]._arr1[di]._field14;");
+				warning("_item6._field16 = _arrunkObj1337[2]._arr1[di]._field16;");
+				_item6._sceneRegionId = _arrunkObj1337[2]._arr1[di]._sceneRegionId;
+				_item6._position = _arrunkObj1337[2]._arr1[di]._position;
+				_item6._yDiff = _arrunkObj1337[2]._arr1[di]._yDiff;
+				_item6._bounds = _arrunkObj1337[2]._arr1[di]._bounds;
+				_item6._resNum = _arrunkObj1337[2]._arr1[di]._resNum;
+				_item6._lookLineNum = _arrunkObj1337[2]._arr1[di]._lookLineNum;
+				_item6._talkLineNum = _arrunkObj1337[2]._arr1[di]._talkLineNum;
+				_item6._useLineNum = _arrunkObj1337[2]._arr1[di]._useLineNum;
+				_item6._action = _arrunkObj1337[2]._arr1[di]._action;
+				warning("_item6._field0 = _arrunkObj1337[2]._arr1[di]._field0;");
+				_item6._object1._updateStartFrame = _arrunkObj1337[2]._arr1[di]._object1._updateStartFrame;
+				_item6._object1._walkStartFrame = _arrunkObj1337[2]._arr1[di]._object1._walkStartFrame;
+				// _field2E is named _field3C in R2R
+				_item6._object1._field2E = _arrunkObj1337[2]._arr1[di]._object1._field2E;
+				_item6._object1._percent = _arrunkObj1337[2]._arr1[di]._object1._percent;
+				_item6._object1._priority = _arrunkObj1337[2]._arr1[di]._object1._priority;
+				_item6._object1._angle = _arrunkObj1337[2]._arr1[di]._object1._angle;
+				_item6._object1._flags = _arrunkObj1337[2]._arr1[di]._object1._flags;
+				_item6._object1._xe = _arrunkObj1337[2]._arr1[di]._object1._xe;
+				_item6._object1._xs = _arrunkObj1337[2]._arr1[di]._object1._xs;
+				_item6._object1._paneRects[0] = _arrunkObj1337[2]._arr1[di]._object1._paneRects[0];
+				_item6._object1._paneRects[1] = _arrunkObj1337[2]._arr1[di]._object1._paneRects[1];
+				_item6._object1._visage = _arrunkObj1337[2]._arr1[di]._object1._visage;
+				_item6._object1._objectWrapper = _arrunkObj1337[2]._arr1[di]._object1._objectWrapper;
+				_item6._object1._strip = _arrunkObj1337[2]._arr1[di]._object1._strip;
+				_item6._object1._animateMode = _arrunkObj1337[2]._arr1[di]._object1._animateMode;
+				_item6._object1._frame = _arrunkObj1337[2]._arr1[di]._object1._frame;
+				_item6._object1._endFrame = _arrunkObj1337[2]._arr1[di]._object1._endFrame;
+				// _field68 is named _field76 in R2R
+				_item6._object1._field68 = _arrunkObj1337[2]._arr1[di]._object1._field68;
+				_item6._object1._frameChange = _arrunkObj1337[2]._arr1[di]._object1._frameChange;
+				_item6._object1._numFrames = _arrunkObj1337[2]._arr1[di]._object1._numFrames;
+				_item6._object1._regionIndex = _arrunkObj1337[2]._arr1[di]._object1._regionIndex;
+				_item6._object1._mover = _arrunkObj1337[2]._arr1[di]._object1._mover;
+				_item6._object1._moveDiff = _arrunkObj1337[2]._arr1[di]._object1._moveDiff;
+				_item6._object1._moveRate = _arrunkObj1337[2]._arr1[di]._object1._moveRate;
+				_item6._object1._field8A = _arrunkObj1337[2]._arr1[di]._object1._field8A;
+				_item6._object1._endAction = _arrunkObj1337[2]._arr1[di]._object1._endAction;
+				_item6._object1._regionBitList = _arrunkObj1337[2]._arr1[di]._object1._regionBitList;
+				// _item6._object1._actorName = _arrunkObj1337[2]._arr1[di]._object1._actorName;
+				_item6._object1._fieldE = _arrunkObj1337[2]._arr1[di]._object1._fieldE;
+				_item6._object1._field10 = _arrunkObj1337[2]._arr1[di]._object1._field10;
+				warning("_item6._object1._field12 = _arrunkObj1337[2]._arr1[di]._object1._field12;");
+				warning("_item6._object1._field14 = _arrunkObj1337[2]._arr1[di]._object1._field14;");
+				warning("_item6._object1._field16 = _arrunkObj1337[2]._arr1[di]._object1._field16;");
+				_item6._object1 = _arrunkObj1337[2]._arr1[di]._object1;
+			}
+		}
+		
+		if (di == 4) {
+			subCDB90(1, _item6._field36);
+			subD0281();
+			return;
+		}
+	} else if (R2_GLOBALS._v57810 == 300) {
+		subCDB90(3, _item6._field36);
+		subD0281();
+		return;
+	} else {
+		subD1A48(R2_GLOBALS._v57810);
+		subD0281();
+		return;
+	}
+	
+	// That continues the block when R2_GLOBALS._v57810 == 200 and di != 4
+	subD18B5(1332, _item6._object1._strip, _item6._object1._frame);
+	R2_GLOBALS._sceneObjects->draw();
+	Event event;
+	bool found = false;
+	bool found_di;
+	for (;;) {
+		if ( ((g_globals->_events.getEvent(event, EVENT_BUTTON_DOWN)) && (event.btnState == BTNSHIFT_RIGHT))
+			|| (g_globals->_events.getEvent(event, EVENT_KEYPRESS)) ){
+			_item6._field36 = g_globals->_events._mousePos;
+			found_di = false;
+			
+			for (int i = 0; i <= 3; i ++) {
+				if (subC2BF8(&_arrunkObj1337[2]._arr1[i], Common::Point(_item6._field36.x + 12, _item6._field36.y + 12)) != 0) {
+					if (_arrunkObj1337[2]._arr1[i]._field34 == 0) {
+						_arrunkObj1337[2]._arr1[i]._field34 = _item6._field34;
+						_arrunkObj1337[2]._arr1[i]._object1.postInit();
+						_arrunkObj1337[2]._arr1[i]._object1.hide();
+						_arrunkObj1337[2]._arr1[i]._object1.setVisage(1332);
+						_arrunkObj1337[2]._arr1[i]._object1.setPosition(_arrunkObj1337[2]._arr1[i]._field36, 0);
+						_arrunkObj1337[2]._arr1[i]._object1.fixPriority(170);
+						setAnimationInfo(&_arrunkObj1337[2]._arr1[i]);
+						subD18B5(5, 1, 4);
+						found = true;
+						_field423E--;
+						_field4244 = 0;
+						subC20F9();
+					} else {
+						actionDisplay(1330, 127, 159, 10, 1, 200, 0, 7, 0, 154, 154);
+						found_di = true;
+					}
+					break;
+				}
+			}
+			
+			if ((!found) && (!found_di)) {
+				if (subC2BF8(&_item7, Common::Point(_item6._field36.x + 12, _item6._field36.y + 12)) != 0) {
+					subC4A39(&_item6);
+				} else if (!found) {
+					bool foundVar4;
+					int i;
+					if (_item6._field34 == 1) {
+						foundVar4 = false;
+						for (i = 0; i <= 7; i++) {
+							if (subC2BF8(&_arrunkObj1337[2]._arr2[i], Common::Point(_item6._field36.x + 12, _item6._field36.y + 12)) != 0) {
+								foundVar4 = true;
+								break;
+							}
+						}
+
+						if ((foundVar4) && (_arrunkObj1337[2]._arr2[i]._field34 == 0)) {
+							if (subC27B5(_arrunkObj1337[2]._arr3[0]._field34) != -1) {
+								actionDisplay(1330, 55, 159, 10, 1, 200, 0, 7, 0, 154, 154);
+							} else {
+								subC340B(&_item6, &_arrunkObj1337[2]._arr2[i]);
+								return;
+							}
+						} else {
+							actionDisplay(1330, 56, 159, 10, 1, 200, 0, 7, 0, 154, 154);
+						}
+					} else if (_item6._field34 <= 9) {
+						foundVar4 = false;
+						for (i = 0; i <= 7; i++) {
+							if (subC2BF8(&_arrunkObj1337[2]._arr2[i], Common::Point(_item6._field36.x + 12, _item6._field36.y + 12)) != 0) {
+								foundVar4 = true;
+								break;
+							}
+						}
+						if ((foundVar4) && (_arrunkObj1337[2]._arr2[i]._field34 == 1)) {
+							foundVar4 = false;
+							int j;
+							for (j = 0; j <= 7; j++) {
+								if (_item6._field34 == _arrunkObj1337[2]._arr2[j]._field34) {
+									foundVar4 = true;
+									break;
+								}
+							}
+							if (foundVar4) {
+								actionDisplay(1330, 34, 159, 10, 1, 200, 0, 7, 0, 154, 154);
+							} else if (subC27B5(_arrunkObj1337[2]._arr3[0]._field34) != -1) {
+								actionDisplay(1330, 35, 159, 10, 1, 200, 0, 7, 0, 154, 154);
+							} else {
+								if (j == 7)
+									_field424A = 2;
+								
+								subC33C0(&_item6, &_arrunkObj1337[2]._arr2[i]);
+								return;
+							}
+						} else {
+							actionDisplay(1330, 37, 159, 10, 1, 200, 0, 7, 0, 154, 154);
+						}
+					} else {
+						if ((_item6._field34 == 26) || (_item6._field34 == 30) ||(_item6._field34 == 32) || (_item6._field34 == 28)) {
+							if (subC2BF8(&_arrunkObj1337[2]._arr3[0], Common::Point(_item6._field36.x + 12, _item6._field36.y + 12)) != 0) {
+								actionDisplay(1330, 42, 159, 10, 1, 200, 0, 7, 0, 154, 154);
+							} else if (!subC3386(_arrunkObj1337[2]._arr3[0]._field34, _item6._field34)) {
+								if (_arrunkObj1337[2]._arr3[0]._field34 != 0) {
+									switch (_arrunkObj1337[2]._arr3[0]._field34) {
+									case 11:
+										actionDisplay(1330, 68, 159, 10, 1, 200, 0, 7, 0, 154, 154);
+										break;
+									case 14:
+										actionDisplay(1330, 80, 159, 10, 1, 200, 0, 7, 0, 154, 154);
+										break;
+									case 16:
+										actionDisplay(1330, 84, 159, 10, 1, 200, 0, 7, 0, 154, 154);
+										break;
+									case 24:
+										actionDisplay(1330, 96, 159, 10, 1, 200, 0, 7, 0, 154, 154);
+										break;
+									default:
+										break;
+									}
+								} else {
+									actionDisplay(1330, 41, 159, 10, 1, 200, 0, 7, 0, 154, 154);
+								}
+							} else {
+								subC34A1(&_item6, &_arrunkObj1337[2]._arr3[0]);
+								return;
+							}
+						} else {
+							if ((subC27F9(_item6._field34) == -1) && (subC27B5(_item6._field34) == -1)) {
+								if (_item6._field34 == 13) {
+									if (subC2BF8(&_arrunkObj1337[0]._arr4[0], Common::Point(_item6._field36.x + 12, _item6._field36.y + 12)) != 0) {
+										for (int k = 0; k <= 7; k++) {
+											if (_arrunkObj1337[0]._arr2[k]._field34 != 0) {
+												found = true;
+												subC358E(&_item6, 0);
+											}
+										}
+
+										if (!found)
+											actionDisplay(1330, 74, 159, 10, 1, 200, 0, 7, 0, 154, 154);
+									} else if (subC2BF8(&_arrunkObj1337[3]._arr4[0], Common::Point(_item6._field36.x + 12, _item6._field36.y + 12)) != 0) {
+										for (int k = 0; k <= 7; k++) {
+											if (_arrunkObj1337[3]._arr2[k]._field34 != 0) {
+												found = true;
+												subC358E(&_item6, 3);
+											}
+										}
+										if (!found)
+											actionDisplay(1330, 74, 159, 10, 1, 200, 0, 7, 0, 154, 154);
+									} else if (subC2BF8(&_arrunkObj1337[1]._arr4[0], Common::Point(_item6._field36.x + 12, _item6._field36.y + 12)) != 0) {
+										for (int k = 0; k <= 7; k++) {
+											if (_arrunkObj1337[1]._arr2[k]._field34 == 0) {
+												found = true;
+												subC358E(&_item6, 1);
+											}
+										}
+										if (!found)
+											actionDisplay(1330, 74, 159, 10, 1, 200, 0, 7, 0, 154, 154);
+									} else {
+										actionDisplay(1330, 128, 159, 10, 1, 200, 0, 7, 0, 154, 154);
+									}
+								} else if (_item6._field34 == 25) {
+									int k;
+									if (subC2BF8(&_arrunkObj1337[0]._arr4[0], Common::Point(_item6._field36.x + 12, _item6._field36.y + 12)) != 0) {
+										if ( (_arrunkObj1337[0]._arr1[0]._field34 != 0)
+											|| (_arrunkObj1337[0]._arr1[1]._field34 != 0)
+											|| (_arrunkObj1337[0]._arr1[2]._field34 != 0)
+											|| (_arrunkObj1337[0]._arr1[3]._field34 != 0) ) {
+												for (k = 0; k <= 3; k++){
+													if (_arrunkObj1337[2]._arr1[k]._field34 == 0)
+														break;
+												}
+												subC318B(2, &_arrunkObj1337[2]._arr1[k], 0);
+												return;
+										} else {
+											actionDisplay(1330, 99, 159, 10, 1, 200, 0, 7, 0, 154, 154);
+										}
+									} else if (subC2BF8(&_arrunkObj1337[1]._arr4[0], Common::Point(_item6._field36.x + 12, _item6._field36.y + 12)) != 0) {
+										if ( (_arrunkObj1337[1]._arr1[0]._field34 != 0)
+											|| (_arrunkObj1337[1]._arr1[1]._field34 != 0)
+											|| (_arrunkObj1337[1]._arr1[2]._field34 != 0)
+											|| (_arrunkObj1337[1]._arr1[3]._field34 != 0) ) {
+												for (k = 0; k <= 3; k++){
+													if (_arrunkObj1337[2]._arr1[k]._field34 == 0)
+														break;
+												}
+												subC318B(2, &_arrunkObj1337[2]._arr1[k], 1);
+												return;
+										} else {
+											actionDisplay(1330, 99, 159, 10, 1, 200, 0, 7, 0, 154, 154);
+										}
+									}
+									
+									if (subC2BF8(&_arrunkObj1337[3]._arr4[0], Common::Point(_item6._field36.x + 12, _item6._field36.y + 12)) != 0) {
+										if ( (_arrunkObj1337[3]._arr1[0]._field34 != 0)
+											|| (_arrunkObj1337[3]._arr1[1]._field34 != 0)
+											|| (_arrunkObj1337[3]._arr1[2]._field34 != 0)
+											|| (_arrunkObj1337[3]._arr1[3]._field34 != 0) ) {
+												for (k = 0; k <= 3; k++){
+													if (_arrunkObj1337[2]._arr1[k]._field34 == 0)
+														break;
+												}
+												subC318B(2, &_arrunkObj1337[2]._arr1[k], 3);
+												return;
+										} else {
+											actionDisplay(1330, 99, 159, 10, 1, 200, 0, 7, 0, 154, 154);
+										}
+									} else {
+										actionDisplay(1330, 129, 159, 10, 1, 200, 0, 7, 0, 154, 154);
+									}
+								} else if (_item6._field34 == 29) {
+									actionDisplay(1330, 136, 159, 10, 1, 200, 0, 7, 0, 154, 154);
+								} else if (_item6._field34 == 27) {
+									actionDisplay(1330, 137, 159, 10, 1, 200, 0, 7, 0, 154, 154);
+								}
+							} else {
+								if (subC2BF8(&_arrunkObj1337[0]._arr3[0], Common::Point(_item6._field36.x + 12, _item6._field36.y + 12)) != 0) {
+									if (_arrunkObj1337[0]._arr3[0]._field34 != 0) {
+										actionDisplay(1330, 15, 159, 10, 1, 200, 0, 7, 0, 154, 154);
+									} else if (!subC32B1(0, _item6._field34)) {
+										switch (_item6._field34) {
+										case 10:
+											actionDisplay(1330, 66, 159, 10, 1, 200, 0, 7, 0, 154, 154);
+											break;
+										case 12:
+											actionDisplay(1330, 70, 159, 10, 1, 200, 0, 7, 0, 154, 154);
+											break;
+										case 15:
+											actionDisplay(1330, 82, 159, 10, 1, 200, 0, 7, 0, 154, 154);
+											break;
+										case 17:
+											actionDisplay(1330, 86, 159, 10, 1, 200, 0, 7, 0, 154, 154);
+											break;
+										case 18:
+											actionDisplay(1330, 88, 159, 10, 1, 200, 0, 7, 0, 154, 154);
+											break;
+										case 19:
+											actionDisplay(1330, 90, 159, 10, 1, 200, 0, 7, 0, 154, 154);
+											break;
+										case 20:
+											actionDisplay(1330, 92, 159, 10, 1, 200, 0, 7, 0, 154, 154);
+											break;
+										case 21:
+											actionDisplay(1330, 94, 159, 10, 1, 200, 0, 7, 0, 154, 154);
+											break;
+										default:
+											break;
+										}
+									} else {
+										subC3456(&_item6, &_arrunkObj1337[0]._arr3[0]);
+										found = true;
+									}
+								} else if (subC2BF8(&_arrunkObj1337[3]._arr3[0], Common::Point(_item6._field36.x + 12, _item6._field36.y + 12)) != 0) {
+									if (_arrunkObj1337[3]._arr3[0]._field34 != 0) {
+										actionDisplay(1330, 17, 159, 10, 1, 200, 0, 7, 0, 154, 154);
+									} else if (!subC32B1(3, _item6._field34)) {
+										switch (_item6._field34) {
+										case 10:
+											actionDisplay(1330, 66, 159, 10, 1, 200, 0, 7, 0, 154, 154);
+											break;
+										case 12:
+											actionDisplay(1330, 70, 159, 10, 1, 200, 0, 7, 0, 154, 154);
+											break;
+										case 15:
+											actionDisplay(1330, 82, 159, 10, 1, 200, 0, 7, 0, 154, 154);
+											break;
+										case 17:
+											actionDisplay(1330, 86, 159, 10, 1, 200, 0, 7, 0, 154, 154);
+											break;
+										case 18:
+											actionDisplay(1330, 88, 159, 10, 1, 200, 0, 7, 0, 154, 154);
+											break;
+										case 19:
+											actionDisplay(1330, 90, 159, 10, 1, 200, 0, 7, 0, 154, 154);
+											break;
+										case 20:
+											actionDisplay(1330, 92, 159, 10, 1, 200, 0, 7, 0, 154, 154);
+											break;
+										case 21:
+											actionDisplay(1330, 94, 159, 10, 1, 200, 0, 7, 0, 154, 154);
+											break;
+										default:
+											break;
+										}
+									} else {
+										subC3456(&_item6, &_arrunkObj1337[3]._arr3[0]);
+										found = true;
+									}
+								} else if (subC2BF8(&_arrunkObj1337[1]._arr3[0], Common::Point(_item6._field36.x + 12, _item6._field36.y + 12)) != 0) {
+									if (_arrunkObj1337[1]._arr3[0]._field34 != 0) {
+										actionDisplay(1330, 19, 159, 10, 1, 200, 0, 7, 0, 154, 154);
+									} else if (!subC32B1(1, _item6._field34)) {
+										switch (_item6._field34) {
+										case 10:
+											actionDisplay(1330, 66, 159, 10, 1, 200, 0, 7, 0, 154, 154);
+											break;
+										case 12:
+											actionDisplay(1330, 70, 159, 10, 1, 200, 0, 7, 0, 154, 154);
+											break;
+										case 15:
+											actionDisplay(1330, 82, 159, 10, 1, 200, 0, 7, 0, 154, 154);
+											break;
+										case 17:
+											actionDisplay(1330, 86, 159, 10, 1, 200, 0, 7, 0, 154, 154);
+											break;
+										case 18:
+											actionDisplay(1330, 88, 159, 10, 1, 200, 0, 7, 0, 154, 154);
+											break;
+										case 19:
+											actionDisplay(1330, 90, 159, 10, 1, 200, 0, 7, 0, 154, 154);
+											break;
+										case 20:
+											actionDisplay(1330, 92, 159, 10, 1, 200, 0, 7, 0, 154, 154);
+											break;
+										case 21:
+											actionDisplay(1330, 94, 159, 10, 1, 200, 0, 7, 0, 154, 154);
+											break;
+										default:
+											break;
+										}
+									} else {
+										subC3456(&_item6, &_arrunkObj1337[1]._arr3[0]);
+										found = true;
+									}
+								} else {
+									actionDisplay(1330, 38, 159, 10, 1, 200, 0, 7, 0, 154, 154);
+								}
+							}
+						}
+					}
+				}
+			}
+			
+			if (found)
+				return;
+		} else {
+			g_globals->_scenePalette.signalListeners();
+			R2_GLOBALS._sceneObjects->draw();
+			g_globals->_events.delay(g_globals->_sceneHandler->_delayTicks);
+		}
+	}
 }
 
 void Scene1337::subD183F(int arg1, int arg2) {
@@ -4226,16 +6229,34 @@ void Scene1337::subD18B5(int resNum, int rlbNum, int arg3) {
 	warning("STUBBED lvl3 Scene1337::subD18B5()");
 }
 
-void Scene1337::subD18F5() {
-	warning("STUBBED Scene1337::subD18F5()");
+int Scene1337::subD18F5() {
+	if (R2_GLOBALS._v57709 == 0)
+		// The cursor looks... very dummy
+		// To be checked
+		warning("TODO: CursorManager.setData(R2_GLOBALS.off_57705)");
+		
+	++R2_GLOBALS._v57709;
+
+	return R2_GLOBALS._v57709;
 }
 
-void Scene1337::subD1917() {
-	warning("STUBBED Scene1337::subD1917()");
+int Scene1337::subD1917() {
+	if (R2_GLOBALS._v57709 != 0) {
+		R2_GLOBALS._v57709--;
+		if (R2_GLOBALS._v57709 != 0)
+			warning("FIXME: subD195F(_width, _data);");
+	}
+
+	return R2_GLOBALS._v57709;
 }
 
-void Scene1337::subD1940(bool flag) {
-	warning("STUBBED Scene1337::subD1940()");
+int Scene1337::subD1940(bool flag) {
+	if (flag)
+		++R2_GLOBALS._v5780C;
+	else if (R2_GLOBALS._v5780C != 0)
+		--R2_GLOBALS._v5780C;
+
+	return R2_GLOBALS._v5780C;
 }
 
 void Scene1337::subD195F(int arg1, int arg2) {
@@ -4246,13 +6267,34 @@ void Scene1337::subD1975(int arg1, int arg2) {
 	warning("STUBBED lvl2 Scene1337::subD1975()");
 }
 
+void Scene1337::subD1A48(int arg1) {
+	int tmpVal = -1;
+
+	switch (arg1) {
+	case 200:
+		tmpVal = 141;
+		break;
+	case 300:
+		tmpVal = 142;
+		break;
+	default:
+		MessageDialog::show(WRONG_ANSWER_MSG, OK_BTN_STRING);
+		break;
+	}
+
+	if (tmpVal == -1)
+		return;
+
+	actionDisplay(1330, tmpVal, -1, -1, 1, 220, 1, 5, 0, 105, 0);
+}
+
 /*--------------------------------------------------------------------------
  * Scene 1500 - Cutscene: Ship landing
  *
  *--------------------------------------------------------------------------*/
 void Scene1500::postInit(SceneObjectList *OwnerList) {
 	loadScene(1500);
-	R2_GLOBALS._v58CE2 = 0;
+	R2_GLOBALS._uiElements._active = false;
 	R2_GLOBALS._v5589E.top = 0;
 	R2_GLOBALS._v5589E.bottom = 200;
 	setZoomPercents(170, 13, 240, 100);
@@ -4315,7 +6357,7 @@ void Scene1500::postInit(SceneObjectList *OwnerList) {
 void Scene1500::remove() {
 	R2_GLOBALS._v5589E.top = 3;
 	R2_GLOBALS._v5589E.bottom = 168;
-	R2_GLOBALS._v58CE2 = 1;
+	R2_GLOBALS._uiElements._active = true;
 
 	SceneExt::remove();
 }
@@ -4410,7 +6452,7 @@ void Scene1500::dispatch() {
  *--------------------------------------------------------------------------*/
 void Scene1525::postInit(SceneObjectList *OwnerList) {
 	loadScene(1525);
-	R2_GLOBALS._v58CE2 = 0;
+	R2_GLOBALS._uiElements._active = false;
 	SceneExt::postInit();
 
 	R2_GLOBALS._player.postInit();
@@ -4458,7 +6500,7 @@ void Scene1530::postInit(SceneObjectList *OwnerList) {
 	else
 		loadScene(1530);
 
-	R2_GLOBALS._v58CE2 = 0;
+	R2_GLOBALS._uiElements._active = false;
 	SceneExt::postInit();
 
 	_stripManager.addSpeaker(&_quinnSpeaker);
@@ -4652,7 +6694,7 @@ bool Scene1550::UnkObj15502::startAction(CursorType action, Event &event) {
 			SceneItem::display(1550, 71, 0, 280, 1, 160, 9, 1, 2, 20, 7, 7, -999);
 		return true;
 		break;
-	case R2_17:
+	case R2_FUEL_CELL:
 		scene->_field412 = 1;
 		if (_fieldA4 == 6) {
 			R2_GLOBALS._player.disableControl();
@@ -4666,7 +6708,7 @@ bool Scene1550::UnkObj15502::startAction(CursorType action, Event &event) {
 		}
 		return SceneActor::startAction(action, event);
 		break;
-	case R2_18:
+	case R2_GYROSCOPE:
 		scene->_field412 = 1;
 		if (_fieldA4 == 3) {
 			R2_GLOBALS._player.disableControl();
@@ -4680,7 +6722,7 @@ bool Scene1550::UnkObj15502::startAction(CursorType action, Event &event) {
 		}
 		return SceneActor::startAction(action, event);
 		break;
-	case R2_22:
+	case R2_GUIDANCE_MODULE:
 		scene->_field412 = 1;
 		if (_fieldA4 == 1) {
 			R2_GLOBALS._player.disableControl();
@@ -4694,7 +6736,7 @@ bool Scene1550::UnkObj15502::startAction(CursorType action, Event &event) {
 		}
 		return SceneActor::startAction(action, event);
 		break;
-	case R2_23:
+	case R2_THRUSTER_VALVE:
 		scene->_field412 = 1;
 		if (_fieldA4 == 4) {
 			R2_GLOBALS._player.disableControl();
@@ -4705,7 +6747,7 @@ bool Scene1550::UnkObj15502::startAction(CursorType action, Event &event) {
 		}
 		return SceneActor::startAction(action, event);
 		break;
-	case R2_25:
+	case R2_RADAR_MECHANISM:
 		scene->_field412 = 1;
 		if (_fieldA4 == 2) {
 			R2_GLOBALS._player.disableControl();
@@ -4719,7 +6761,7 @@ bool Scene1550::UnkObj15502::startAction(CursorType action, Event &event) {
 		}
 		return SceneActor::startAction(action, event);
 		break;
-	case R2_27:
+	case R2_IGNITOR:
 		scene->_field412 = 1;
 		if (_fieldA4 == 5) {
 			R2_GLOBALS._player.disableControl();
@@ -4730,7 +6772,7 @@ bool Scene1550::UnkObj15502::startAction(CursorType action, Event &event) {
 		}
 		return SceneActor::startAction(action, event);
 		break;
-	case R2_45:
+	case R2_BATTERY:
 		scene->_field412 = 1;
 		if (_fieldA4 == 7) {
 			R2_GLOBALS._player.disableControl();
@@ -4756,37 +6798,37 @@ void Scene1550::UnkObj15502::subA5CDF(int strip) {
 	setup(1517, _fieldA4, 1);
 	switch (_fieldA4 - 1) {
 	case 0:
-		if (R2_INVENTORY.getObjectScene(R2_22) == 0)
+		if (R2_INVENTORY.getObjectScene(R2_GUIDANCE_MODULE) == 0)
 			setFrame(5);
 		setPosition(Common::Point(287, 85));
 		break;
 	case 1:
-		if (R2_INVENTORY.getObjectScene(R2_25) == 0)
+		if (R2_INVENTORY.getObjectScene(R2_RADAR_MECHANISM) == 0)
 			setFrame(5);
 		setPosition(Common::Point(248, 100));
 		break;
 	case 2:
-		if (R2_INVENTORY.getObjectScene(R2_28) == 0)
+		if (R2_INVENTORY.getObjectScene(R2_DIAGNOSTICS_DISPLAY) == 0)
 			setFrame(5);
 		setPosition(Common::Point(217, 85));
 		break;
 	case 3:
-		if (R2_INVENTORY.getObjectScene(R2_23))
+		if (R2_INVENTORY.getObjectScene(R2_THRUSTER_VALVE))
 			setFrame(5);
 		setPosition(Common::Point(161, 121));
 		break;
 	case 4:
-		if (R2_INVENTORY.getObjectScene(R2_27))
+		if (R2_INVENTORY.getObjectScene(R2_IGNITOR))
 			setFrame(5);
 		setPosition(Common::Point(117, 121));
 		break;
 	case 5:
-		if (R2_INVENTORY.getObjectScene(R2_17))
+		if (R2_INVENTORY.getObjectScene(R2_FUEL_CELL))
 			setFrame(5);
 		setPosition(Common::Point(111, 85));
 		break;
 	case 6:
-		if (R2_INVENTORY.getObjectScene(R2_45))
+		if (R2_INVENTORY.getObjectScene(R2_BATTERY))
 			setFrame(5);
 		setPosition(Common::Point(95, 84));
 		break;
@@ -5091,7 +7133,7 @@ bool Scene1550::Actor13::startAction(CursorType action, Event &event) {
 		if (scene->_field415 != 2)
 			return SceneActor::startAction(action, event);
 		
-		if (R2_INVENTORY.getObjectScene(R2_45) == 1550) {
+		if (R2_INVENTORY.getObjectScene(R2_BATTERY) == 1550) {
 			R2_GLOBALS._player.disableControl();
 			scene->_sceneMode = 1564;
 			scene->setAction(&scene->_sequenceManager1, scene, 1564, &R2_GLOBALS._player, NULL);
@@ -5103,7 +7145,7 @@ bool Scene1550::Actor13::startAction(CursorType action, Event &event) {
 		if (scene->_field415 != 2)
 			return SceneActor::startAction(action, event);
 
-		if (R2_INVENTORY.getObjectScene(R2_45) == 1550) {
+		if (R2_INVENTORY.getObjectScene(R2_BATTERY) == 1550) {
 			SceneItem::display(1550, 74, 0, 280, 1, 160, 9, 1, 2, 20, 7, 7, -999);
 		} else
 			SceneItem::display(1550, 64, 0, 280, 1, 160, 9, 1, 2, 20, 7, 7, -999);
@@ -5146,7 +7188,7 @@ void Scene1550::postInit(SceneObjectList *OwnerList) {
 	SceneExt::postInit();
 	
 	if (R2_GLOBALS._sceneManager._previousScene == -1)
-		R2_GLOBALS.setFlag(R2_16);
+		R2_GLOBALS.setFlag(R2_ATTRACTOR_CABLE_HARNESS);
 
 	if ((R2_GLOBALS._player._characterScene[1] != 1550) && (R2_GLOBALS._player._characterScene[1] != 1580)) {
 		R2_GLOBALS._player._characterScene[1] = 1550;
@@ -5439,7 +7481,7 @@ void Scene1550::signal() {
 	case 1552:
 	// No break on purpose
 	case 1588:
-		R2_INVENTORY.setObjectScene(R2_19, R2_GLOBALS._player._characterIndex);
+		R2_INVENTORY.setObjectScene(R2_AIRBAG, R2_GLOBALS._player._characterIndex);
 		_actor8.remove();
 		_field412 = 0;
 		R2_GLOBALS._player.enableControl();
@@ -5454,7 +7496,7 @@ void Scene1550::signal() {
 	case 1555:
 	// No break on purpose
 	case 1589:
-		R2_INVENTORY.setObjectScene(R2_18, R2_GLOBALS._player._characterIndex);
+		R2_INVENTORY.setObjectScene(R2_GYROSCOPE, R2_GLOBALS._player._characterIndex);
 		_actor10.remove();
 		R2_GLOBALS._player.enableControl();
 		break;
@@ -5478,7 +7520,7 @@ void Scene1550::signal() {
 		_field415 = 2;
 		break;
 	case 1564:
-		R2_INVENTORY.setObjectScene(R2_45, 1);
+		R2_INVENTORY.setObjectScene(R2_BATTERY, 1);
 		_sceneMode = 1565;
 		setAction(&_sequenceManager1, this, 1565, &R2_GLOBALS._player, NULL);
 		break;
@@ -5491,7 +7533,7 @@ void Scene1550::signal() {
 	case 1579:
 		_field412 = 0;
 		_actor1.remove();
-		R2_INVENTORY.setObjectScene(R2_22, 0);
+		R2_INVENTORY.setObjectScene(R2_GUIDANCE_MODULE, 0);
 		R2_GLOBALS._player.enableControl();
 		break;
 	case 1570:
@@ -5499,7 +7541,7 @@ void Scene1550::signal() {
 	case 1580:
 		_field412 = 0;
 		_actor1.remove();
-		R2_INVENTORY.setObjectScene(R2_25, 0);
+		R2_INVENTORY.setObjectScene(R2_RADAR_MECHANISM, 0);
 		R2_GLOBALS._player.enableControl();
 		break;
 	case 1571:
@@ -5507,19 +7549,19 @@ void Scene1550::signal() {
 	case 1581:
 		_field412 = 0;
 		_actor1.remove();
-		R2_INVENTORY.setObjectScene(R2_18, 0);
+		R2_INVENTORY.setObjectScene(R2_GYROSCOPE, 0);
 		R2_GLOBALS._player.enableControl();
 		break;
 	case 1572:
 		_field412 = 0;
 		_actor1.remove();
-		R2_INVENTORY.setObjectScene(R2_23, 0);
+		R2_INVENTORY.setObjectScene(R2_THRUSTER_VALVE, 0);
 		R2_GLOBALS._player.enableControl();
 		break;
 	case 1573:
 		_field412 = 0;
 		_actor1.remove();
-		R2_INVENTORY.setObjectScene(R2_27, 0);
+		R2_INVENTORY.setObjectScene(R2_IGNITOR, 0);
 		R2_GLOBALS._player.enableControl();
 		break;
 	case 1574:
@@ -5527,7 +7569,7 @@ void Scene1550::signal() {
 	case 1582:
 		_field412 = 0;
 		_actor1.remove();
-		R2_INVENTORY.setObjectScene(R2_17, 0);
+		R2_INVENTORY.setObjectScene(R2_FUEL_CELL, 0);
 		R2_GLOBALS._player.enableControl();
 		break;
 	case 1575:
@@ -5535,7 +7577,7 @@ void Scene1550::signal() {
 	case 1583:
 		_field412 = 0;
 		_actor1.remove();
-		R2_INVENTORY.setObjectScene(R2_45, 0);
+		R2_INVENTORY.setObjectScene(R2_BATTERY, 0);
 		R2_GLOBALS._player.enableControl();
 		break;
 	case 1576:
@@ -5560,14 +7602,14 @@ void Scene1550::signal() {
 	case 1586:
 	// No break on purpose
 	case 1587:
-		R2_INVENTORY.setObjectScene(R2_28, R2_GLOBALS._player._characterIndex);
+		R2_INVENTORY.setObjectScene(R2_DIAGNOSTICS_DISPLAY, R2_GLOBALS._player._characterIndex);
 		_actor1.remove();
 		_field412 = 0;
 		R2_GLOBALS._player.enableControl();
 		break;
 	case 1592:
 		_actor9.remove();
-		R2_INVENTORY.setObjectScene(R2_26, 1);
+		R2_INVENTORY.setObjectScene(R2_JOYSTICK, 1);
 		if (R2_GLOBALS._player._characterIndex == 1) {
 			R2_GLOBALS._v565EC[2] = R2_GLOBALS._v565EC[1];
 			R2_GLOBALS._v565EC[4] = R2_GLOBALS._v565EC[3];
@@ -6355,7 +8397,7 @@ void Scene1550::subA2B2F() {
 				R2_GLOBALS._walkRegions.enableRegion(k5A78D);
 				R2_GLOBALS._walkRegions.enableRegion(k5A790);
 				R2_GLOBALS._walkRegions.enableRegion(k5A791);
-				if (R2_INVENTORY.getObjectScene(R2_26) == 1550) {
+				if (R2_INVENTORY.getObjectScene(R2_JOYSTICK) == 1550) {
 					_actor9.postInit();
 					_actor9.setup(1562, 3, 1);
 					_actor9.setPosition(Common::Point(150, 70));
@@ -6444,7 +8486,7 @@ void Scene1550::subA2B2F() {
 				_actor1.setPosition(Common::Point(259, 133));
 				_actor1.fixPriority(105);
 				_actor1.setDetails(1550, 9, -1, -1, 2, (SceneItem *) NULL);
-				if (R2_INVENTORY.getObjectScene(R2_18) == 1550) {
+				if (R2_INVENTORY.getObjectScene(R2_GYROSCOPE) == 1550) {
 					_actor10.postInit();
 					_actor10.setup(1550, 7, 2);
 					_actor10.setPosition(Common::Point(227, 30));
@@ -6463,7 +8505,7 @@ void Scene1550::subA2B2F() {
 				_actor1.setup(1550, 1, 3);
 				_actor1.setPosition(Common::Point(76, 64));
 				_actor1.setDetails(1550, 9, -1, -1, 2, (SceneItem *) NULL);
-				if (R2_INVENTORY.getObjectScene(R2_28) == 1550) {
+				if (R2_INVENTORY.getObjectScene(R2_DIAGNOSTICS_DISPLAY) == 1550) {
 					_actor11.postInit();
 					_actor11.setup(1504, 4, 1);
 					_actor11.setPosition(Common::Point(49, 35));
@@ -6472,7 +8514,7 @@ void Scene1550::subA2B2F() {
 					_actor11.fixPriority(65);
 					_actor11.setDetails(1550, 14, 15, 63, 2, (SceneItem *) NULL);
 				}
-				if (R2_INVENTORY.getObjectScene(R2_19) == 1550) {
+				if (R2_INVENTORY.getObjectScene(R2_AIRBAG) == 1550) {
 					_actor8.postInit();
 					_actor8.setup(1550, 7, 1);
 					_actor8.setPosition(Common::Point(45, 44));
@@ -6783,7 +8825,7 @@ void Scene1575::Hotspot1::subA910D(int indx) {
 
 void Scene1575::postInit(SceneObjectList *OwnerList) {
 	loadScene(1575);
-	R2_GLOBALS._v58CE2 = 0;
+	R2_GLOBALS._uiElements._active = false;
 	R2_GLOBALS._v5589E = Rect(0, 0, 320, 200);
 	SceneExt::postInit();
 	_field414 = 390;
@@ -6898,7 +8940,7 @@ void Scene1575::remove() {
 	SceneExt::remove();
 	R2_GLOBALS._v5589E.top = 3;
 	R2_GLOBALS._v5589E.bottom = 168;
-	R2_GLOBALS._v58CE2 = 1;
+	R2_GLOBALS._uiElements._active = true;
 }
 
 void Scene1575::signal() {
@@ -7012,7 +9054,7 @@ void Scene1580::synchronize(Serializer &s) {
 bool Scene1580::Hotspot1::startAction(CursorType action, Event &event) {
 	Scene1580 *scene = (Scene1580 *)R2_GLOBALS._sceneManager._scene;
 
-	if (action == R2_26) {
+	if (action == R2_JOYSTICK) {
 		R2_INVENTORY.setObjectScene(26, 1580);
 		R2_GLOBALS._sceneItems.remove(&scene->_item1);
 		scene->_actor2.postInit();
@@ -7031,7 +9073,7 @@ bool Scene1580::Hotspot1::startAction(CursorType action, Event &event) {
 bool Scene1580::Hotspot2::startAction(CursorType action, Event &event) {
 	Scene1580 *scene = (Scene1580 *)R2_GLOBALS._sceneManager._scene;
 
-	if (action == R2_28) {
+	if (action == R2_DIAGNOSTICS_DISPLAY) {
 		R2_INVENTORY.setObjectScene(28, 1580);
 		R2_GLOBALS._player.disableControl();
 		R2_GLOBALS._sceneItems.remove(&scene->_item2);
@@ -7133,14 +9175,14 @@ bool Scene1580::Actor6::startAction(CursorType action, Event &event) {
 			return true;
 		}
 		break;
-	case R2_9:
+	case R2_COM_SCANNER:
 		scene->_sceneMode = 30;
 		R2_GLOBALS._player.disableControl();
 		R2_GLOBALS._events.setCursor(CURSOR_CROSSHAIRS);
 		scene->_stripManager.start(529, scene);
 		return true;
 		break;
-	case R2_39:
+	case R2_COM_SCANNER_2:
 		scene->_sceneMode = 30;
 		R2_GLOBALS._player.disableControl();
 		R2_GLOBALS._events.setCursor(CURSOR_CROSSHAIRS);
@@ -7165,14 +9207,14 @@ bool Scene1580::Actor7::startAction(CursorType action, Event &event) {
 			return true;
 		}
 		break;
-	case R2_9:
+	case R2_COM_SCANNER:
 		scene->_sceneMode = 30;
 		R2_GLOBALS._player.disableControl();
 		R2_GLOBALS._events.setCursor(CURSOR_CROSSHAIRS);
 		scene->_stripManager.start(529, scene);
 		return true;
 		break;
-	case R2_39:
+	case R2_COM_SCANNER_2:
 		scene->_sceneMode = 30;
 		R2_GLOBALS._player.disableControl();
 		R2_GLOBALS._events.setCursor(CURSOR_CROSSHAIRS);
@@ -8249,7 +10291,7 @@ bool Scene1750::Actor5::startAction(CursorType action, Event &event) {
 void Scene1750::postInit(SceneObjectList *OwnerList) {
 	loadScene(1750);
 	R2_GLOBALS._sound1.play(115);
-	R2_GLOBALS._v58CE2 = 0;
+	R2_GLOBALS._uiElements._active = false;
 	R2_GLOBALS._v5589E.set(0, 0, 320, 200);
 	SceneExt::postInit();
 	
@@ -8374,7 +10416,7 @@ void Scene1750::remove() {
 	R2_GLOBALS._sound1.fadeOut2(NULL);
 	R2_GLOBALS._v5589E.top = 3;
 	R2_GLOBALS._v5589E.bottom = 168;
-	R2_GLOBALS._v58CE2 = 1;
+	R2_GLOBALS._uiElements._active = true;
 }
 
 void Scene1750::signal() {
@@ -8404,7 +10446,7 @@ void Scene1800::synchronize(Serializer &s) {
 }
 
 bool Scene1800::Hotspot5::startAction(CursorType action, Event &event) {
-	if ((action != R2_9) && (action != R2_39))
+	if ((action != R2_COM_SCANNER) && (action != R2_COM_SCANNER_2))
 		return false;
 	
 	Scene1800 *scene = (Scene1800 *)R2_GLOBALS._sceneManager._scene;
@@ -8914,6 +10956,781 @@ void Scene1800::saveCharacter(int characterIndex) {
 }
 
 /*--------------------------------------------------------------------------
+ * Scene 1850 - 
+ *
+ *--------------------------------------------------------------------------*/
+Scene1850::Scene1850() {
+	warning("STUBBED: Scene1850()");
+}
+
+void Scene1850::synchronize(Serializer &s) {
+	warning("STUBBED: Scene1850::synchronize()");
+}
+
+bool Scene1850::Hotspot2::startAction(CursorType action, Event &event) {
+	if (action != CURSOR_USE)
+		return SceneHotspot::startAction(action, event);
+	
+	Scene1850 *scene = (Scene1850 *)R2_GLOBALS._sceneManager._scene;
+
+	R2_GLOBALS._player.disableControl();
+	if (R2_GLOBALS._player._characterIndex == R2_QUINN) {
+		scene->_sceneMode = 1852;
+		if (R2_GLOBALS.getFlag(32))
+			scene->setAction(&scene->_sequenceManager1, scene, 1871, &R2_GLOBALS._player, NULL);
+		else
+			scene->setAction(&scene->_sequenceManager1, scene, 1852, &R2_GLOBALS._player, NULL);
+	} else if (R2_GLOBALS.getFlag(30)) {
+		scene->_field41E = 1;
+		scene->_sceneMode = 1860;
+
+		if (R2_GLOBALS.getFlag(32))
+			scene->setAction(&scene->_sequenceManager1, scene, 1860, &R2_GLOBALS._player, &scene->_actor5, NULL);
+		else
+			scene->setAction(&scene->_sequenceManager1, scene, 1859, &R2_GLOBALS._player, &scene->_actor5, NULL);
+		
+		R2_GLOBALS.clearFlag(30);
+	} else {
+		scene->_sceneMode = 1853;
+
+		if (R2_GLOBALS.getFlag(32))
+			scene->setAction(&scene->_sequenceManager1, scene, 1872, &R2_GLOBALS._player, NULL);
+		else
+			scene->setAction(&scene->_sequenceManager1, scene, 1853, &R2_GLOBALS._player, NULL);
+	}
+	
+	return true;
+}
+
+bool Scene1850::Actor5::startAction(CursorType action, Event &event) {
+	Scene1850 *scene = (Scene1850 *)R2_GLOBALS._sceneManager._scene;
+
+	switch (action) {
+	case CURSOR_USE:
+		if ((R2_GLOBALS._player._characterIndex != R2_SEEKER) || (R2_GLOBALS.getFlag(33)) || (R2_GLOBALS.getFlag(30)))
+			return SceneActor::startAction(action, event);
+		
+		R2_GLOBALS._player.disableControl();
+		scene->_sceneMode = 1857;
+		
+		if (R2_GLOBALS.getFlag(32))
+			scene->setAction(&scene->_sequenceManager1, scene, 1858, &R2_GLOBALS._player, &scene->_actor5, NULL);
+		else
+			scene->setAction(&scene->_sequenceManager1, scene, 1857, &R2_GLOBALS._player, &scene->_actor5, NULL);
+
+		R2_GLOBALS.setFlag(30);
+		return true;
+		break;
+	case CURSOR_LOOK:
+		if (R2_GLOBALS.getFlag(34))
+			SceneItem::display(1850, 2, 0, 280, 1, 160, 9, 1, 2, 20, 7, 7, -999);
+		else
+			SceneItem::display(1850, 1, 0, 280, 1, 160, 9, 1, 2, 20, 7, 7, -999);
+		
+		return true;
+		break;
+	case R2_AIRBAG:
+		if (R2_GLOBALS._player._characterIndex == R2_SEEKER) {
+			if (R2_GLOBALS.getFlag(70)) {
+				R2_GLOBALS._player.disableControl();
+				scene->_sceneMode = 30;
+
+				R2_GLOBALS._events.setCursor(CURSOR_CROSSHAIRS);
+				scene->_stripManager.start(558, scene);
+
+				return true;
+			} else {
+				return SceneActor::startAction(action, event);
+			}
+		} else if (R2_GLOBALS.getFlag(30)) {
+			R2_GLOBALS._player.disableControl();
+			scene->_sceneMode = 1875;
+			scene->_actor2.postInit();
+			
+			if (R2_GLOBALS.getFlag(32))
+				scene->setAction(&scene->_sequenceManager1, scene, 1876, &R2_GLOBALS._player, &scene->_actor2, NULL);
+			else
+				scene->setAction(&scene->_sequenceManager1, scene, 1875, &R2_GLOBALS._player, &scene->_actor2, NULL);
+
+			return true;
+		} else if (R2_GLOBALS.getFlag(70)) {
+			R2_GLOBALS._player.disableControl();
+			scene->_sceneMode = 30;
+			R2_GLOBALS._events.setCursor(CURSOR_CROSSHAIRS);
+			scene->_stripManager.start(557, scene);
+			R2_GLOBALS.setFlag(69);
+			
+			return true;
+		} else {
+			return SceneActor::startAction(action, event);
+		}
+		break;
+	case R2_REBREATHER_TANK:
+		if (R2_INVENTORY.getObjectScene(R2_AIRBAG) == 1850) {
+			if (R2_GLOBALS.getFlag(30))
+				return SceneActor::startAction(action, event);;
+
+			R2_GLOBALS._player.disableControl();
+			scene->_sceneMode = 1878;
+			scene->setAction(&scene->_sequenceManager1, scene, 1878, &R2_GLOBALS._player, &scene->_actor5, &scene->_actor2, NULL);
+		}
+		
+		return true;
+		break;
+	default:
+		return SceneActor::startAction(action, event);
+		break;
+	}
+}
+
+bool Scene1850::Actor6::startAction(CursorType action, Event &event) {
+	if (action != CURSOR_USE)
+		return SceneHotspot::startAction(action, event);
+	
+	Scene1850 *scene = (Scene1850 *)R2_GLOBALS._sceneManager._scene;
+	
+	if (R2_GLOBALS.getFlag(32)) {
+		SceneItem::display(3240, 4, 0, 280, 1, 160, 9, 1, 2, 20, 7, 7, -999);
+		return true;
+	}
+	
+	R2_GLOBALS._player.disableControl();
+	if (scene->_field412 == 1851)
+		R2_GLOBALS._player._effect = 1;
+	
+	if (_position.x >= 160)
+		R2_GLOBALS.setFlag(29);
+	else 
+		R2_GLOBALS.clearFlag(29);
+	
+	if ((R2_GLOBALS._player._characterIndex == R2_SEEKER) && (R2_GLOBALS.getFlag(30))) {
+		if (_position.x >= 160)
+			scene->_field41E = 3;
+		else
+			scene->_field41E = 2;
+		
+		scene->_sceneMode = 1860;
+		
+		if (R2_GLOBALS.getFlag(32)) {
+			scene->setAction(&scene->_sequenceManager1, scene, 1860, &R2_GLOBALS._player, &scene->_actor5, NULL);
+		} else {
+			scene->setAction(&scene->_sequenceManager1, scene, 1859, &R2_GLOBALS._player, &scene->_actor5, NULL);
+		}
+	} else {
+		scene->_sceneMode = 11;
+		if (_position.x >= 160) {
+			scene->setAction(&scene->_sequenceManager1, scene, 1866, &R2_GLOBALS._player, &scene->_actor7, NULL);
+		} else {
+			scene->setAction(&scene->_sequenceManager1, scene, 1865, &R2_GLOBALS._player, &scene->_actor6, NULL);
+		}
+	}
+
+	return true;
+}
+
+bool Scene1850::Actor8::startAction(CursorType action, Event &event) {
+	if ((action != CURSOR_USE) || (_position.y != 120))
+		return SceneHotspot::startAction(action, event);
+
+	Scene1850 *scene = (Scene1850 *)R2_GLOBALS._sceneManager._scene;
+
+	R2_GLOBALS._player.disableControl();
+	scene->_sceneMode = 1881;
+	
+	if (R2_GLOBALS._player._characterIndex == R2_QUINN) {
+		scene->setAction(&scene->_sequenceManager1, scene, 1881, &R2_GLOBALS._player, NULL);
+	} else {
+		scene->setAction(&scene->_sequenceManager1, scene, 1880, &R2_GLOBALS._player, NULL);
+	}
+	
+	return true;
+}
+
+void Scene1850::postInit(SceneObjectList *OwnerList) {
+	loadScene(1850);
+
+	if (R2_GLOBALS._player._oldCharacterScene[R2_GLOBALS._player._characterIndex] != 1850)
+		R2_GLOBALS.clearFlag(31);
+
+	_palette1.loadPalette(0);
+
+	if (R2_GLOBALS.getFlag(31)) {
+		_field412 = 1850;
+		g_globals->_scenePalette.loadPalette(1850);
+	} else {
+		_field412 = 1851;
+		g_globals->_scenePalette.loadPalette(1851);
+	}
+
+	SceneExt::postInit();
+
+	if (R2_GLOBALS._sceneManager._previousScene == 3150)
+		R2_GLOBALS._sound1.play(116);
+	
+	_stripManager.addSpeaker(&_quinnSpeaker);
+	_stripManager.addSpeaker(&_seekerSpeaker);
+	
+	_field418 = 0;
+	_field41E = 0;
+	_field41A = Common::Point(0, 0);
+
+	R2_GLOBALS._player._characterScene[1] = 1850;
+	R2_GLOBALS._player._characterScene[2] = 1850;
+
+	_item2.setDetails(Rect(101, 56, 111, 63), 1850, 19, -1, -1, 1, NULL);
+
+	_actor6.postInit();
+	_actor6.setup(1850, 3, 1);
+	_actor6.setPosition(Common::Point(66, 102));
+	_actor6.setDetails(1850, 22, -1, -1, 1, (SceneItem *) NULL);
+
+	_actor7.postInit();
+	_actor7.setup(1850, 2, 1);
+	_actor7.setPosition(Common::Point(253, 102));
+	_actor7.setDetails(1850, 22, -1, -1, 1, (SceneItem *) NULL);
+
+	R2_GLOBALS._walkRegions.enableRegion(1);
+
+	_actor5.postInit();
+	
+	if (R2_GLOBALS.getFlag(34)) {
+		R2_GLOBALS._walkRegions.enableRegion(2);
+		_actor5.setup(1851, 4, 3);
+	} else if (R2_GLOBALS.getFlag(30)) {
+		_actor5.setup(1851, 2, 2);
+	} else {
+		R2_GLOBALS._walkRegions.enableRegion(5);
+		if (R2_GLOBALS.getFlag(33)) {
+			R2_GLOBALS._walkRegions.enableRegion(2);
+			_actor5.setup(1851, 1, 3);
+		} else {
+			_actor5.setup(1851, 2, 1);
+		}
+	}
+
+	_actor5.setPosition(Common::Point(219, 130));
+	_actor5.fixPriority(114);
+	_actor5.setDetails(1850, -1, -1, -1, 1, (SceneItem *) NULL);
+
+	R2_GLOBALS._player.postInit();
+
+	_actor1.postInit();
+	if (R2_GLOBALS._player._characterIndex == R2_QUINN) {
+		_actor1.setDetails(9002, 0, 4, 3, 1, (SceneItem *) NULL);
+	} else {
+		_actor1.setDetails(9001, 0, 5, 3, 1, (SceneItem *) NULL);
+	}
+
+	if (R2_GLOBALS._player._oldCharacterScene[R2_GLOBALS._player._characterIndex] == 1850) {
+		R2_GLOBALS._player._effect = 6;
+		_actor1._effect = 6;
+		if (R2_GLOBALS.getFlag(31)) {
+			R2_GLOBALS._player._shade = 0;
+			_actor1._shade = 0;
+		} else {
+			R2_GLOBALS._player._shade = 6;
+			_actor1._shade = 6;
+		}
+
+		if (R2_INVENTORY.getObjectScene(R2_AIRBAG) == 1850) {
+			_actor2.postInit();
+			if (R2_GLOBALS.getFlag(34)) {
+				_actor2.setup(1851, 4, 2);
+				_actor2.fixPriority(114);
+			} else {
+				_actor2.setup(1851, 4, 1);
+			}
+
+			_actor2.setPosition(Common::Point(179, 113));
+
+			if ((_actor5._strip == 1) && (_actor5._frame == 3)){
+				_actor2.hide();
+			}
+
+			_actor2.setDetails(1850, 6, -1, -1, 1, (SceneItem *) NULL);
+		}
+
+		if (R2_GLOBALS._player._characterIndex == R2_QUINN) {
+			if (R2_GLOBALS.getFlag(32)) {
+				R2_GLOBALS._player.setVisage(1511);
+				_actor1.setVisage(1508);
+
+				_actor3.postInit();
+				_actor3.setup(1853, 3, 1);
+				_actor3.setPosition(Common::Point(122, 113));
+				_actor3.fixPriority(114);
+				_actor3._effect = 6;
+
+				// Totally useless test
+				if (R2_GLOBALS._player._characterIndex == R2_QUINN) {
+					_actor3.setDetails(1850, 28, -1, -1, 2, (SceneItem *) NULL);
+				} else {
+					// And the associated dead code
+					_actor3.setDetails(1850, 30, -1, -1, 2, (SceneItem *) NULL);
+				}
+
+				_actor4.postInit();
+				_actor4.setup(1853, 3, 2);
+				_actor4.setPosition(Common::Point(139, 111));
+				_actor4.fixPriority(114);
+				_actor4._effect = 6;
+
+				// Still totally useless test
+				if (R2_GLOBALS._player._characterIndex == R2_QUINN) {
+					_actor4.setDetails(1850, 29, -1, -1, 2, (SceneItem *) NULL);
+				} else {
+					// Another piece of dead code
+					_actor4.setDetails(1850, 28, -1, -1, 2, (SceneItem *) NULL);
+				}
+
+				if (R2_GLOBALS.getFlag(31)) {
+					_actor3._shade = 0;
+					_actor4._shade = 0;
+				} else {
+					_actor3._shade = 6;
+					_actor4._shade = 6;
+				}
+			} else {
+				R2_GLOBALS._player.setVisage(1500);
+				_actor1.setVisage(1505);
+			}
+		} else { // Not Quinn
+			if (R2_GLOBALS.getFlag(32)) {
+				R2_GLOBALS._player.setVisage(1508);
+				_actor1.setVisage(1511);
+
+				_actor3.postInit();
+				_actor3.setup(1853, 3, 1);
+				_actor3.setPosition(Common::Point(122, 113));
+				_actor3.fixPriority(114);
+				_actor3._effect = 6;
+
+				// Totally useless test
+				if (R2_GLOBALS._player._characterIndex == R2_QUINN) {
+					// Dead code
+					_actor3.setDetails(1850, 28, -1, -1, 2, (SceneItem *) NULL);
+				} else {
+					_actor3.setDetails(1850, 30, -1, -1, 2, (SceneItem *) NULL);
+				}
+
+				_actor4.postInit();
+				_actor4.setup(1853, 3, 2);
+				_actor4.setPosition(Common::Point(139, 111));
+				_actor4.fixPriority(114);
+				_actor4._effect = 6;
+
+				// Again, useless test
+				if (R2_GLOBALS._player._characterIndex == R2_QUINN) {
+					// and dead code
+					_actor4.setDetails(1850, 29, -1, -1, 1, (SceneItem *) NULL);
+				} else {
+					_actor4.setDetails(1850, 28, -1, -1, 1, (SceneItem *) NULL);
+				}
+
+				if (R2_GLOBALS.getFlag(31)) {
+					_actor3._shade = 0;
+					_actor4._shade = 0;
+				} else {
+					_actor3._shade = 6;
+					_actor4._shade = 6;
+				}
+			} else {
+				R2_GLOBALS._player.setVisage(1505);
+				_actor1.setVisage(1500);
+			}
+		}
+
+		R2_GLOBALS._player.animate(ANIM_MODE_1, NULL);
+		R2_GLOBALS._player.setStrip(3);
+		R2_GLOBALS._player.setPosition(Common::Point(80, 114));
+
+		_actor1.animate(ANIM_MODE_1, NULL);
+		_actor1.setObjectWrapper(new SceneObjectWrapper());
+		_actor1.setStrip(3);
+		_actor1.setPosition(Common::Point(180, 96));
+
+		if (R2_GLOBALS.getFlag(30)) {
+			if (R2_GLOBALS._player._characterIndex == R2_QUINN) {
+				_actor1.animate(ANIM_MODE_NONE, NULL);
+				_actor1.setObjectWrapper(NULL);
+				if (R2_GLOBALS.getFlag(32)) {
+					_actor1.setup(1854, 1, 3);
+				} else {
+					_actor1.setup(1854, 2, 3);
+				}
+
+				_actor1.setPosition(Common::Point(164, 106));
+			} else {
+				_actor1.animate(ANIM_MODE_NONE, NULL);
+				_actor1.setObjectWrapper(NULL);
+				if (R2_GLOBALS.getFlag(32)) {
+					R2_GLOBALS._player.setup(1854, 1, 3);
+				} else {
+					R2_GLOBALS._player.setup(1854, 2, 3);
+				}
+
+				R2_GLOBALS._player.setPosition(Common::Point(164, 106));
+			}
+		} 
+
+		R2_GLOBALS._player.enableControl();
+	} else { // R2_GLOBALS._player._oldCharacterScene[R2_GLOBALS._player._characterIndex] != 1850
+		R2_GLOBALS._player._effect = 1;
+		_actor1._effect = 1;
+		R2_GLOBALS._player.disableControl();
+		_sceneMode = 10;
+		if (R2_GLOBALS._player._characterIndex == R2_QUINN) {
+			if (R2_GLOBALS.getFlag(29)) {
+				setAction(&_sequenceManager1, this, 1863, &R2_GLOBALS._player, &_actor1, &_actor7, NULL);
+			} else {
+				setAction(&_sequenceManager1, this, 1861, &R2_GLOBALS._player, &_actor1, &_actor6, NULL);
+			}
+		} else {
+			if (R2_GLOBALS.getFlag(29)) {
+				setAction(&_sequenceManager1, this, 1864, &R2_GLOBALS._player, &_actor1, &_actor7, NULL);
+			} else {
+				setAction(&_sequenceManager1, this, 1862, &R2_GLOBALS._player, &_actor1, &_actor6, NULL);
+			}
+		}
+	}
+
+	if (R2_GLOBALS._player._characterIndex == R2_QUINN) {
+		R2_GLOBALS._player._moveDiff = Common::Point(3, 2);
+		_actor1._moveDiff = Common::Point(5, 3);
+	} else {
+		R2_GLOBALS._player._moveDiff = Common::Point(5, 3);
+		_actor1._moveDiff = Common::Point(3, 2);
+	}
+
+	_actor8.postInit();
+	_actor8.setup(1850, 1, 1);
+
+	if (R2_GLOBALS.getFlag(62)) {
+		_actor8.setPosition(Common::Point(159, 120));
+	} else {
+		_actor8.setPosition(Common::Point(159, 184));
+	}
+
+	_actor8.fixPriority(113);
+	
+	if (R2_GLOBALS.getFlag(34)) {
+		_actor8.setDetails(1850, 25, -1, -1, 4, &_actor5);
+	} else {
+		_actor8.setDetails(1850, 25, -1, -1, 2, (SceneItem *) NULL);
+	}
+
+	if (!R2_GLOBALS.getFlag(62)) {
+		_actor8.hide();
+	}
+
+	_item1.setDetails(Rect(0, 0, 320, 200), 1850, 16, -1, -1, 1, NULL);
+
+	R2_GLOBALS._player._oldCharacterScene[1] = 1850;
+	R2_GLOBALS._player._oldCharacterScene[2] = 1850;
+}
+
+void Scene1850::remove() {
+	g_globals->_scenePalette.loadPalette(0);
+
+	R2_GLOBALS._scenePalette._palette[771] = 255;
+	R2_GLOBALS._scenePalette._palette[772] = 255;
+	R2_GLOBALS._scenePalette._palette[773] = 255;
+	
+	SceneExt::remove();
+}
+
+void Scene1850::signal() {
+	switch (_sceneMode) {
+	case 10:
+		R2_GLOBALS._player._effect = 6;
+		R2_GLOBALS._player._shade = 6;
+
+		_actor1._effect = 6;
+		_actor1._shade = 6;
+		
+		R2_GLOBALS._walkRegions.enableRegion(5);
+		
+		if (R2_GLOBALS.getFlag(68)) {
+			R2_GLOBALS._player.enableControl();
+		} else {
+			R2_GLOBALS.setFlag(68);
+			_sceneMode = 20;
+			R2_GLOBALS._events.setCursor(CURSOR_CROSSHAIRS);
+			_stripManager.start(554, this);
+		}
+		break;
+	case 11:
+		R2_GLOBALS.clearFlag(30);
+		R2_GLOBALS._sceneManager.changeScene(1800);
+		break;
+	case 15:
+		_sceneMode = 16;
+		break;
+	case 16:
+		_sceneMode = 1870;
+		setAction(&_sequenceManager1, this, 1870, &R2_GLOBALS._player, &_actor1, &_actor3, &_actor4, NULL);
+		break;
+	case 20:
+		R2_GLOBALS._player.enableControl(CURSOR_TALK);
+		break;
+	case 21:
+		R2_GLOBALS._player.disableControl();
+		_sceneMode = 1877;
+		setAction(&_sequenceManager1, this, 1877, &R2_GLOBALS._player, &_actor1, &_actor5, NULL);
+		break;
+	case 30:
+		R2_GLOBALS._player.disableControl();
+		_sceneMode = 1882;
+		setAction(&_sequenceManager1, this, 1882, &R2_GLOBALS._player, NULL);
+		break;
+	case 1852:
+	// No break on purpose:
+	case 1853:
+		if (_field412 == 1851) {
+			R2_GLOBALS.setFlag(31);
+			_palette1.loadPalette(1850);
+			_field412 = 1850;
+		} else {
+			R2_GLOBALS.clearFlag(31);
+			_palette1.loadPalette(1851);
+			_field412 = 1851;
+		}
+		
+		_field418 = 1;
+		if (R2_GLOBALS.getFlag(30)) {
+			_actor8.setAction(&_sequenceManager2, NULL, 1867, &_actor8, NULL);
+		} else if (R2_GLOBALS.getFlag(34)) {
+			if (R2_GLOBALS.getFlag(62)) {
+				R2_GLOBALS.clearFlag(62);
+				_actor8.setAction(&_sequenceManager2, this, 1851, &_actor8, NULL);
+			} else {
+				R2_GLOBALS.setFlag(62);
+				_actor8.setAction(&_sequenceManager2, this, 1850, &_actor8, NULL);
+			}
+		} else if (R2_GLOBALS.getFlag(33)) {
+				R2_GLOBALS.setFlag(62);
+				R2_GLOBALS.setFlag(34);
+				R2_GLOBALS._walkRegions.enableRegion(2);
+				
+				_actor2.postInit();
+				_actor2.setDetails(1850, 6, -1, -1, 5, &_actor5);
+				
+				_sceneMode = 1879;
+
+				_actor8.setAction(&_sequenceManager2, this, 1879, &_actor5, &_actor8, &_actor2, NULL);
+		} else {
+			_actor8.setAction(&_sequenceManager2, NULL, 1867, &_actor8, NULL);
+		}
+		
+		if (R2_GLOBALS.getFlag(34))
+			R2_GLOBALS._scenePalette.addFader(_palette1._palette, 256, 5, NULL);
+		else
+			R2_GLOBALS._scenePalette.addFader(_palette1._palette, 256, 5, this);
+		
+		if (_field412 == 1851)
+			_field416 = -20;
+		else
+			_field416 = 20;
+		
+		_field414 = 20;
+		
+		if (R2_GLOBALS._player._characterIndex == R2_QUINN) {
+			if (_sceneMode == 1879)
+				_sceneMode = 1854;
+			
+			if (R2_GLOBALS.getFlag(32)) {
+				setAction(&_sequenceManager1, NULL, 1873, &R2_GLOBALS._player, NULL);
+			} else {
+				setAction(&_sequenceManager1, NULL, 1854, &R2_GLOBALS._player, NULL);
+			}
+		} else {
+			if (_sceneMode == 1879)
+				_sceneMode = 1855;
+			
+			if (R2_GLOBALS.getFlag(32)) {
+				setAction(&_sequenceManager1, NULL, 1874, &R2_GLOBALS._player, NULL);
+			} else {
+				setAction(&_sequenceManager1, NULL, 1855, &R2_GLOBALS._player, NULL);
+			}
+		}
+		break;
+	case 1857:
+		if (R2_GLOBALS.getFlag(69)) {
+			R2_GLOBALS._player.enableControl();
+			R2_GLOBALS._player._canWalk = false;
+		} else {
+			_sceneMode = 1858;
+			R2_GLOBALS._events.setCursor(CURSOR_CROSSHAIRS);
+			_stripManager.start(555, this);
+			R2_GLOBALS.setFlag(69);
+		}
+		break;
+	case 1858:
+		R2_GLOBALS._player.disableControl();
+		_sceneMode = 1859;
+		setAction(&_sequenceManager1, this, 1859, &R2_GLOBALS._player, &_actor5, NULL);
+		R2_GLOBALS.clearFlag(30);
+		break;
+	case 1859:
+		R2_GLOBALS.setFlag(70);
+		_sceneMode = 20;
+		R2_GLOBALS._events.setCursor(CURSOR_CROSSHAIRS);
+		_stripManager.start(575, this);
+		break;
+	case 1860:
+		if (_field41A.x != 0) {
+			R2_GLOBALS._player.enableControl();
+
+			PlayerMover *mover = new PlayerMover();
+			R2_GLOBALS._player.addMover(mover, &_field41A, this);
+			
+			_field41A = Common::Point(0, 0);
+		}
+		
+		switch (_field41E) {
+		case 1:
+			_sceneMode = 1853;
+			if (R2_GLOBALS.getFlag(32)) {
+				setAction(&_sequenceManager1, this, 1872, &R2_GLOBALS._player, NULL);
+			} else {
+				setAction(&_sequenceManager1, this, 1853, &R2_GLOBALS._player, NULL);
+			}
+			break;
+		case 2:
+			_sceneMode = 11;
+			setAction(&_sequenceManager1, this, 1865, &R2_GLOBALS._player, &_actor6, NULL);
+			break;
+		case 3:
+			warning("_field41E == 3");
+			_sceneMode = 11;
+			setAction(&_sequenceManager1, this, 1866, &R2_GLOBALS._player, &_actor7, NULL);
+			break;
+		default:
+			break;
+		}
+		
+		_field41E = 0;
+		break;
+	case 1870:
+		R2_GLOBALS._walkRegions.enableRegion(5);
+		R2_INVENTORY.setObjectScene(R2_REBREATHER_TANK, 1);
+		R2_GLOBALS.setFlag(32);
+		R2_GLOBALS._player.enableControl(CURSOR_ARROW);
+		break;
+	case 1875:
+		R2_INVENTORY.setObjectScene(R2_AIRBAG, 1850);
+		_sceneMode = 21;
+		R2_GLOBALS._events.setCursor(CURSOR_CROSSHAIRS);
+		_stripManager.start(561, this);
+		break;
+	case 1877:
+		_actor3.postInit();
+		_actor3._effect = 6;
+
+		if (R2_GLOBALS._player._characterIndex == R2_QUINN) {
+			_actor3.setDetails(1850, 28, -1, -1, 2, (SceneItem *)NULL);
+		} else {
+			_actor3.setDetails(1850, 30, -1, -1, 2, (SceneItem *)NULL);
+		}
+		
+		_actor4.postInit();
+		_actor4._effect = 6;
+		
+		if (R2_GLOBALS._player._characterIndex == R2_QUINN) {
+			_actor4.setDetails(1850, 29, -1, -1, 2, (SceneItem *)NULL);
+		} else {
+			_actor4.setDetails(1850, 28, -1, -1, 2, (SceneItem *)NULL);
+		}
+		
+		if (R2_GLOBALS.getFlag(31)) {
+			_actor3._shade = 0;
+			_actor4._shade = 0;
+		} else {
+			_actor3._shade = 6;
+			_actor4._shade = 6;
+		}
+			
+		R2_GLOBALS.clearFlag(30);
+		_sceneMode = 15;
+		setAction(&_sequenceManager1, this, 1869, &R2_GLOBALS._player, &_actor3, NULL);
+		setAction(&_sequenceManager2, this, 1868, &_actor1, &_actor4, NULL);
+		break;		
+	case 1878:
+		R2_INVENTORY.setObjectScene(R2_REBREATHER_TANK, 1850);
+		R2_GLOBALS.setFlag(33);
+		R2_GLOBALS._walkRegions.enableRegion(2);
+		R2_GLOBALS._player.enableControl();
+		break;
+	case 1879:
+		R2_GLOBALS._player.enableControl();
+		break;
+	case 1881:
+		R2_GLOBALS._sceneManager.changeScene(1875);
+		break;
+	case 1882:
+		R2_INVENTORY.setObjectScene(R2_AIRBAG, 1);
+		R2_GLOBALS._player.enableControl();
+		break;
+	default:
+		R2_GLOBALS._player.enableControl();
+		break;
+	}
+}
+
+void Scene1850::process(Event &event) {
+	if ( (event.eventType == EVENT_BUTTON_DOWN) && (R2_GLOBALS._events.getCursor() == CURSOR_ARROW) 
+		&& (R2_GLOBALS._player._characterIndex == R2_SEEKER) && (R2_GLOBALS.getFlag(30))) {
+		_field41A = event.mousePos;
+		R2_GLOBALS._player.disableControl();
+		_sceneMode = 1860;
+		if (R2_GLOBALS.getFlag(32)) {
+			setAction(&_sequenceManager1, this, 1860, &R2_GLOBALS._player, &_actor5, NULL);
+		} else {
+			setAction(&_sequenceManager1, this, 1859, &R2_GLOBALS._player, &_actor5, NULL);
+		}
+		R2_GLOBALS.clearFlag(32);
+		event.handled = true;
+	}
+	
+	Scene::process(event);
+}
+
+void Scene1850::dispatch() {
+	if (_field418 != 0) {
+		_field414--;
+		if (_field414 == 0)
+			_field418 = 0;
+		
+		if (_field416 >= 0) {
+			R2_GLOBALS._player._shade = (_field414 * 6) / _field416;
+		} else {
+			R2_GLOBALS._player._shade = ((_field414 * 6) / _field416) + 6;
+		}
+		R2_GLOBALS._player._flags |= OBJFLAG_PANES;
+
+		_actor1._shade = R2_GLOBALS._player._shade;
+		_actor1._flags |= OBJFLAG_PANES;
+
+		_actor3._shade = R2_GLOBALS._player._shade;
+		_actor3._flags |= OBJFLAG_PANES;
+
+		_actor4._shade = R2_GLOBALS._player._shade;
+		_actor4._flags |= OBJFLAG_PANES;
+	}
+
+	if (R2_GLOBALS.getFlag(32)) {
+		_actor3.setPosition(Common::Point(_actor8._position.x - 37, _actor8._position.y - 71));
+		_actor4.setPosition(Common::Point(_actor8._position.x - 20, _actor8._position.y - 73));
+	}
+
+	if (R2_INVENTORY.getObjectScene(R2_AIRBAG) == 1850) {
+		_actor2.setPosition(Common::Point(_actor8._position.x + 20, _actor8._position.y - 71));
+	}
+	
+	Scene::dispatch();
+}
+
+/*--------------------------------------------------------------------------
  * Scene 1875 - 
  *
  *--------------------------------------------------------------------------*/
@@ -9193,10 +12010,10 @@ void Scene1900::postInit(SceneObjectList *OwnerList) {
 	_stripManager.setFontNumber(3);
 	_stripManager.addSpeaker(&_seekerSpeaker);
 	
-	_exit1.setDetails(Rect(0, 105, 14, 145), R2_9, 2000);
+	_exit1.setDetails(Rect(0, 105, 14, 145), R2_COM_SCANNER, 2000);
 	_exit1.setDest(Common::Point(14, 135));
 
-	_exit2.setDetails(Rect(305, 105, 320, 145), R2_10, 2000);
+	_exit2.setDetails(Rect(305, 105, 320, 145), R2_SPENT_POWER_CAPSULE, 2000);
 	_exit2.setDest(Common::Point(315, 135));
 
 	R2_GLOBALS._player.postInit();
@@ -9714,7 +12531,7 @@ bool Scene1945::Hotspot3::startAction(CursorType action, Event &event) {
 	Scene1945 *scene = (Scene1945 *)R2_GLOBALS._sceneManager._scene;
 
 	switch (action) {
-	case R2_37:
+	case R2_GUNPOWDER:
 		R2_GLOBALS._player.disableControl();
 		scene->_sceneMode = 0;
 		if ((R2_GLOBALS._player._position.x == 191) && (R2_GLOBALS._player._position.y == 142))
@@ -9779,7 +12596,7 @@ bool Scene1945::Hotspot4::startAction(CursorType action, Event &event) {
 }
 
 bool Scene1945::Actor3::startAction(CursorType action, Event &event) {
-	if ((action == R2_50) && (action == R2_49)) {
+	if ((action == R2_ALCOHOL_LAMP_3) && (action == R2_ALCOHOL_LAMP_2)) {
 		Scene1945 *scene = (Scene1945 *)R2_GLOBALS._sceneManager._scene;
 
 		scene->_fieldEAE = action;
@@ -9943,7 +12760,7 @@ void Scene1945::signal() {
 		}
 		return;
 	case 1942:
-		R2_INVENTORY.setObjectScene(R2_37, 0);
+		R2_INVENTORY.setObjectScene(R2_GUNPOWDER, 0);
 		_actor3.setDetails(1945, 15, -1, -1, 2, (SceneItem *) NULL);
 		R2_GLOBALS.setFlag(42);
 		break;
@@ -10201,7 +13018,7 @@ bool Scene1950::Hotspot2::startAction(CursorType action, Event &event) {
 }
 
 bool Scene1950::Actor2::startAction(CursorType action, Event &event) {
-	if (action != R2_31)
+	if (action != R2_SCRITH_KEY)
 		return SceneActor::startAction(action, event);
 
 	Scene1950 *scene = (Scene1950 *)R2_GLOBALS._sceneManager._scene;
@@ -10378,7 +13195,7 @@ void Scene1950::Actor8::signal() {
 bool Scene1950::Actor8::startAction(CursorType action, Event &event) {
 	Scene1950 *scene = (Scene1950 *)R2_GLOBALS._sceneManager._scene;
 
-	if ((R2_GLOBALS._v56613[(scene->_field41C - 1) * 4] == 0) || (action != R2_44))
+	if ((R2_GLOBALS._v56613[(scene->_field41C - 1) * 4] == 0) || (action != R2_PHOTON_STUNNER))
 		return SceneActor::startAction(action, event);
 	
 	R2_GLOBALS._player.disableControl();
@@ -11788,7 +14605,7 @@ void Scene1950::signal() {
 void Scene1950::process(Event &event) {
 	if ( (event.eventType == EVENT_BUTTON_DOWN)
 		&& (R2_GLOBALS._player._uiEnabled) 
-		&& (R2_GLOBALS._events.getCursor() == R2_47)
+		&& (R2_GLOBALS._events.getCursor() == R2_LIGHT_BULB)
 		&& (R2_GLOBALS._player._bounds.contains(event.mousePos))
 		&& (R2_INVENTORY.getObjectScene(31) == 0)) {
 		event.handled = true;

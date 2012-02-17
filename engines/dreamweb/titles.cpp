@@ -51,8 +51,9 @@ void DreamWebEngine::monkSpeaking() {
 	fadeScreenUps();
 	hangOn(300);
 
+	// TODO: Subtitles+speech mode
 	if (hasSpeech()) {
-		for (int i = 40; i <= 48; i++) {
+		for (int i = 40; i < 48; i++) {
 			loadSpeech('T', 83, 'T', i);
 
 			playChannel1(50 + 12);

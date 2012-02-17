@@ -73,8 +73,16 @@ enum EventType {
 	 * An associated enumerated type can accomplish this.
 	 **/
 	EVENT_PREDICTIVE_DIALOG = 12
+
+#ifdef ENABLE_KEYMAPPER
+	,
+	// IMPORTANT NOTE: This is part of the WIP Keymapper. If you plan to use
+	// this, please talk to tsoliman and/or LordHoto.
+	EVENT_CUSTOM_BACKEND = 13
+#endif
 };
 
+typedef uint32 CustomEventType;
 /**
  * Data structure for an event. A pointer to an instance of Event
  * can be passed to pollEvent.
@@ -98,6 +106,12 @@ struct Event {
 	 * screen area as defined by the most recent call to initSize().
 	 */
 	Point mouse;
+
+#ifdef ENABLE_KEYMAPPER
+	// IMPORTANT NOTE: This is part of the WIP Keymapper. If you plan to use
+	// this, please talk to tsoliman and/or LordHoto.
+	CustomEventType customType;
+#endif
 
 	Event() : type(EVENT_INVALID), synthetic(false) {}
 };

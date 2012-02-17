@@ -252,6 +252,9 @@ public:
 	ASoundExt _sound1, _sound2, _sound3, _sound4;
 	PlayStream _playStream;
 	StripProxy _stripProxy;
+	bool _v1000Flag;
+	byte _v1000[0x1000];
+	byte _palIndexList[10][256];
 	int _insetUp;
 	int _frameEdgeColour;	// _v421e
 	Rect _v5589E;
@@ -296,7 +299,6 @@ public:
 	int _v5780E;
 	int _v57810;
 	int _v57C2C;
-	int _v58CE2;
 	int _speechSubtitles;
 	byte _v565EC[5];
 	byte _v565F1[4];
