@@ -274,7 +274,7 @@ static void setupKeymapper(OSystem &system) {
 	// Now create the global keymap
 	Keymap *primaryGlobalKeymap = new Keymap(kGlobalKeymapName);
 	Action *act;
-	act = new Action(primaryGlobalKeymap, "MENU", _("Menu"), kMenuActionType);
+	act = new Action(primaryGlobalKeymap, "MENU", _("Menu"));
 	act->addEvent(EVENT_MAINMENU);
 
 	act = new Action(primaryGlobalKeymap, "SKCT", _("Skip"));
@@ -286,11 +286,13 @@ static void setupKeymapper(OSystem &system) {
 	act = new Action(primaryGlobalKeymap, "SKLI", _("Skip line"));
 	act->addKeyEvent(KeyState(KEYCODE_PERIOD, '.', 0));
 
-	act = new Action(primaryGlobalKeymap, "VIRT", _("Display keyboard"), kVirtualKeyboardActionType);
-	act->addKeyEvent(KeyState(KEYCODE_F7, ASCII_F7, 0));
+#ifdef ENABLE_VKEYBD
+	act = new Action(primaryGlobalKeymap, "VIRT", _("Display keyboard"));
+	act->addEvent(EVENT_VIRTUAL_KEYBOARD);
+#endif
 
-	act = new Action(primaryGlobalKeymap, "REMP", _("Remap keys"), kKeyRemapActionType);
-	act->addKeyEvent(KeyState(KEYCODE_F8, ASCII_F8, 0));
+	act = new Action(primaryGlobalKeymap, "REMP", _("Remap keys"));
+	act->addEvent(EVENT_KEYMAPPER_REMAP);
 
 	act = new Action(primaryGlobalKeymap, "FULS", _("Toggle FullScreen"));
 	act->addKeyEvent(KeyState(KEYCODE_RETURN, ASCII_RETURN, KBD_ALT));

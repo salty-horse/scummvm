@@ -104,7 +104,6 @@ void Keymapper::initKeymap(Domain &domain, Keymap *map) {
 	map->loadMappings(_hardwareKeys);
 
 	if (map->isComplete(_hardwareKeys) == false) {
-		map->automaticMapping(_hardwareKeys);
 		map->saveMappings();
 		ConfMan.flushToDisk();
 	}
@@ -180,26 +179,35 @@ void Keymapper::popKeymap(const char *name) {
 
 }
 
-bool Keymapper::notifyEvent(const Common::Event &ev) {
+List<Event> Keymapper::mapEvent(const Event &ev, EventSource *source) {
+	if (source && !source->allowMapping()) {
+		return DefaultEventMapper::mapEvent(ev, source);
+	}
+
+	List<Event> mappedEvents;
+
 	if (ev.type == Common::EVENT_KEYDOWN)
-		return mapKeyDown(ev.kbd);
+		mappedEvents = mapKeyDown(ev.kbd);
 	else if (ev.type == Common::EVENT_KEYUP)
-		return mapKeyUp(ev.kbd);
+		mappedEvents = mapKeyUp(ev.kbd);
+
+	if (!mappedEvents.empty())
+		return mappedEvents;
 	else
-		return false;
+		return DefaultEventMapper::mapEvent(ev, source);
 }
 
-bool Keymapper::mapKeyDown(const KeyState& key) {
+List<Event> Keymapper::mapKeyDown(const KeyState& key) {
 	return mapKey(key, true);
 }
 
-bool Keymapper::mapKeyUp(const KeyState& key) {
+List<Event> Keymapper::mapKeyUp(const KeyState& key) {
 	return mapKey(key, false);
 }
 
-bool Keymapper::mapKey(const KeyState& key, bool keyDown) {
+List<Event> Keymapper::mapKey(const KeyState& key, bool keyDown) {
 	if (!_enabled || _activeMaps.empty())
-		return false;
+		return List<Event>();
 
 	Action *action = 0;
 
@@ -226,11 +234,9 @@ bool Keymapper::mapKey(const KeyState& key, bool keyDown) {
 	}
 
 	if (!action)
-		return false;
+		return List<Event>();
 
-	executeAction(action, keyDown);
-
-	return true;
+	return executeAction(action, keyDown);
 }
 
 Action *Keymapper::getAction(const KeyState& key) {
@@ -239,7 +245,8 @@ Action *Keymapper::getAction(const KeyState& key) {
 	return action;
 }
 
-void Keymapper::executeAction(const Action *action, bool keyDown) {
+List<Event> Keymapper::executeAction(const Action *action, bool keyDown) {
+	List<Event> mappedEvents;
 	List<Event>::const_iterator it;
 
 	for (it = action->events.begin(); it != action->events.end(); ++it) {
@@ -279,8 +286,9 @@ void Keymapper::executeAction(const Action *action, bool keyDown) {
 		}
 
 		evt.mouse = _eventMan->getMousePos();
-		addEvent(evt);
+		mappedEvents.push_back(evt);
 	}
+	return mappedEvents;
 }
 
 const HardwareKey *Keymapper::findHardwareKey(const KeyState& key) {

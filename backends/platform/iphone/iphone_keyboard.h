@@ -20,12 +20,15 @@
  *
  */
 
-#import <UIKit/UIKit.h>
-#import <UIKit/UITextView.h>
+#ifndef BACKENDS_PLATFORM_IPHONE_IPHONE_KEYBOARD_H
+#define BACKENDS_PLATFORM_IPHONE_IPHONE_KEYBOARD_H
+
+#include <UIKit/UIKit.h>
+#include <UIKit/UITextView.h>
 
 @interface SoftKeyboard : UIView {
 	id inputDelegate;
-	UITextView* inputView;
+	UITextView *inputView;
 }
 
 - (id)initWithFrame:(CGRect)frame;
@@ -34,3 +37,5 @@
 - (void)handleKeyPress:(unichar)c;
 
 @end
+
+#endif
