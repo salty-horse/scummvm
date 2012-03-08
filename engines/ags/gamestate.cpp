@@ -43,6 +43,9 @@ GameState::GameState(AGSEngine *vm) : _vm(vm) {
 
 	// this is initialized by gamefile
 	_scoreSound = (uint)-1;
+
+	// not inited in original?!
+	_stopDialogAtEnd = DIALOG_NONE;
 }
 
 void GameState::init() {
