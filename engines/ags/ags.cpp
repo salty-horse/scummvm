@@ -69,11 +69,6 @@ AGSEngine::AGSEngine(OSystem *syst, const AGSGameDescription *gameDesc) :
 }
 
 AGSEngine::~AGSEngine() {
-	delete _currentRoom;
-
-	for (uint i = 0; i < _characters.size(); ++i)
-		delete _characters[i];
-
 	for (uint i = 0; i < _scriptModules.size(); ++i)
 		delete _scriptModules[i];
 	for (uint i = 0; i < _scriptModuleForks.size(); ++i)
@@ -84,13 +79,21 @@ AGSEngine::~AGSEngine() {
 	delete _roomScript;
 	delete _roomScriptFork;
 
+	delete _currentRoom;
+
+	for (uint i = 0; i < _characters.size(); ++i) {
+		assert(_characters[i]->getRefCount() == 1);
+		_characters[i]->DecRef();
+	}
+
+	delete _scriptState;
+
 	delete _sprites;
 
 	delete _audio;
 	delete _gameFile;
 	delete _resourceMan;
 
-	delete _scriptState;
 	delete _rnd;
 }
 
