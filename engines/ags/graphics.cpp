@@ -35,6 +35,8 @@
 #include "common/array.h"
 #include "common/events.h"
 
+#include "engines/util.h"
+
 #include "graphics/palette.h"
 
 namespace AGS {
@@ -167,12 +169,81 @@ protected:
 	uint32 _hotspotX, _hotspotY;
 };
 
-AGSGraphics::AGSGraphics(AGSEngine *vm) : _vm(vm) {
+AGSGraphics::AGSGraphics(AGSEngine *vm) : _vm(vm), _width(0), _height(0), _forceLetterbox(false) {
 	_cursorObj = new CursorDrawable(_vm);
 }
 
 AGSGraphics::~AGSGraphics() {
 	delete _cursorObj;
+}
+
+bool AGSGraphics::getScreenSize() {
+	_width = _baseWidth = 320;
+	_height = _baseHeight = 200;
+	_textMultiply = 2;
+
+	switch (_vm->_gameFile->_defaultResolution) {
+	case 0:
+		_textMultiply = 1;
+		break;
+	case 1:
+	case 2:
+		//_width = 640;
+		//_height = 480;
+		break;
+	case 3:
+	case 4:
+		//_width = 640;
+		//_height = 400;
+		break;
+	case 5:
+		_baseWidth = 400;
+		_baseHeight = 300;
+		break;
+	default:
+		_baseWidth = 512;
+		_baseHeight = 384;
+		break;
+	}
+
+	if (_vm->_gameFile->_defaultResolution >= 5) {
+		_width = _baseWidth * 2;
+		_height = _baseHeight * 2;
+		_vm->_gameFile->_options[OPT_LETTERBOX] = 0;
+		_forceLetterbox = false;
+	}
+
+	_screenResolutionMultiplier = _width / _baseWidth;
+
+	return true;
+}
+
+Graphics::PixelFormat AGSGraphics::getPixelFormat() const {
+	switch (_vm->_gameFile->_colorDepth) {
+	case 1:
+		// 8bpp
+		return Graphics::PixelFormat::createFormatCLUT8();
+	case 2:
+		// 16bpp: 565
+		return Graphics::PixelFormat(2, 5, 6, 5, 0, 11, 5, 0, 0);
+	default:
+		// 24bpp: RGB888
+		return Graphics::PixelFormat(3, 8, 8, 8, 0, 16, 8, 0, 0);
+	}
+}
+
+bool AGSGraphics::initGraphics() {
+	if (!getScreenSize())
+		return false;
+
+	if ((_width == 0) || (_height == 0))
+		return false;
+
+	Graphics::PixelFormat format = getPixelFormat();
+	::initGraphics(_width, _height, _width != 320, &format);
+	// FIXME: check format?
+
+	return true;
 }
 
 void AGSGraphics::initPalette() {

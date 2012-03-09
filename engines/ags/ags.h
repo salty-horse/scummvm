@@ -165,8 +165,6 @@ public:
 	ResourceManager *getResourceManager() { return _resourceMan; }
 	SpriteSet *getSprites() { return _sprites; }
 
-	Graphics::PixelFormat getPixelFormat() const;
-
 	void setDefaultCursor();
 	uint32 findNextEnabledCursor(uint32 startWith);
 	void setCursorMode(uint32 newMode);
@@ -214,6 +212,7 @@ public:
 	GameFile *_gameFile;
 	class GameState *_state;
 	class AGSAudio *_audio;
+	AGSGraphics *_graphics;
 
 	Common::Array<Character *> _characters;
 
@@ -222,19 +221,11 @@ private:
 
 	Common::RandomSource *_rnd;
 
-	AGSGraphics *_graphics;
-
 	uint32 _engineStartTime;
 	uint32 _playTime;
 	uint32 _loopCounter;
 	uint32 _framesPerSecond;
 	uint32 _lastFrameTime;
-
-	uint16 _width, _height;
-	uint16 _baseWidth, _baseHeight;
-	uint32 _screenResolutionMultiplier;
-	uint16 _textMultiply;
-	bool _forceLetterbox;
 
 	ResourceManager *_resourceMan;
 	SpriteSet *_sprites;
@@ -298,8 +289,6 @@ private:
 	void firstRoomInitialization();
 	void loadNewRoom(uint32 id, Character *forChar);
 	void checkNewRoom();
-	bool getScreenSize();
-	bool initGraphics();
 
 	BlockUntilType checkBlockingUntil();
 

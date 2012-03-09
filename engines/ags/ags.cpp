@@ -30,7 +30,6 @@
 #include "common/EventRecorder.h"
 
 #include "engines/advancedDetector.h"
-#include "engines/util.h"
 
 // Audio
 #include "audio/mixer.h"
@@ -57,7 +56,7 @@ const char *kGameDataNameV3 = "game28.dta";
 
 AGSEngine::AGSEngine(OSystem *syst, const AGSGameDescription *gameDesc) :
 	Engine(syst), _gameDescription(gameDesc), _engineStartTime(0), _playTime(0),
-	_width(0), _height(0), _resourceMan(0), _forceLetterbox(false), _needsUpdate(true), _guiNeedsUpdate(true),
+	_resourceMan(0), _needsUpdate(true), _guiNeedsUpdate(true),
 	_startingRoom(0xffffffff), _displayedRoom(0xffffffff),
 	_gameScript(NULL), _gameScriptFork(NULL), _dialogScriptsScript(NULL), _roomScript(NULL), _roomScriptFork(NULL),
 	_currentRoom(NULL), _framesPerSecond(40), _lastFrameTime(0),
@@ -756,20 +755,6 @@ uint32 AGSEngine::getGameUniqueID() const {
 	return _gameFile->_uniqueID;
 }
 
-Graphics::PixelFormat AGSEngine::getPixelFormat() const {
-	switch (_gameFile->_colorDepth) {
-	case 1:
-		// 8bpp
-		return Graphics::PixelFormat::createFormatCLUT8();
-	case 2:
-		// 16bpp: 565
-		return Graphics::PixelFormat(2, 5, 6, 5, 0, 11, 5, 0, 0);
-	default:
-		// 24bpp: RGB888
-		return Graphics::PixelFormat(3, 8, 8, 8, 0, 16, 8, 0, 0);
-	}
-}
-
 Common::SeekableReadStream *AGSEngine::getFile(const Common::String &filename) const {
 	return _resourceMan->getFile(filename);
 }
@@ -850,66 +835,12 @@ bool AGSEngine::init() {
 	_sprites = new SpriteSet(this, spritesStream);
 
 	// Init graphics
-
-	if (!getScreenSize())
-		return false;
-
-	if (!initGraphics())
+	if (!_graphics->initGraphics())
 		return false;
 
 	syncSoundSettings();
 
 	_engineStartTime = g_system->getMillis();
-
-	return true;
-}
-
-bool AGSEngine::getScreenSize() {
-	_baseWidth = 320;
-	_baseHeight = 200;
-	_textMultiply = 2;
-
-	switch (_gameFile->_defaultResolution) {
-	case 0:
-		_textMultiply = 1;
-		break;
-	case 1:
-	case 2:
-		_width = 640;
-		_height = 480;
-		break;
-	case 3:
-	case 4:
-		_width = 640;
-		_height = 400;
-		break;
-	case 5:
-		_baseWidth = 400;
-		_baseHeight = 300;
-		break;
-	default:
-		_baseWidth = 512;
-		_baseHeight = 384;
-		break;
-	}
-
-	if (_gameFile->_defaultResolution >= 5) {
-		_width = _baseWidth * 2;
-		_height = _baseHeight * 2;
-		_gameFile->_options[OPT_LETTERBOX] = 0;
-		_forceLetterbox = false;
-	}
-
-	_screenResolutionMultiplier = _width / _baseWidth;
-
-	return true;
-}
-
-bool AGSEngine::initGraphics() {
-	if ((_width == 0) || (_height == 0))
-		return false;
-
-	::initGraphics(_width, _height, _width != 320, 0);
 
 	return true;
 }
@@ -1049,45 +980,45 @@ byte AGSEngine::getGameOption(uint index) {
 // Multiplies up the number of pixels depending on the current
 // resolution, to give a relatively fixed size at any game res
 uint AGSEngine::getFixedPixelSize(uint pixels) {
-	return pixels * _screenResolutionMultiplier;
+	return pixels * _graphics->_screenResolutionMultiplier;
 }
 
 int AGSEngine::convertToLowRes(int coord) {
-	return (getGameOption(OPT_NATIVECOORDINATES) ? (coord / _screenResolutionMultiplier) : coord);
+	return (getGameOption(OPT_NATIVECOORDINATES) ? (coord / _graphics->_screenResolutionMultiplier) : coord);
 }
 
 int AGSEngine::convertBackToHighRes(int coord) {
-	return (getGameOption(OPT_NATIVECOORDINATES) ? (coord * _screenResolutionMultiplier) : coord);
+	return (getGameOption(OPT_NATIVECOORDINATES) ? (coord * _graphics->_screenResolutionMultiplier) : coord);
 }
 
 int AGSEngine::multiplyUpCoordinate(int coord) {
-	return (getGameOption(OPT_NATIVECOORDINATES) ? coord : (coord * _screenResolutionMultiplier));
+	return (getGameOption(OPT_NATIVECOORDINATES) ? coord : (coord * _graphics->_screenResolutionMultiplier));
 }
 
 void AGSEngine::multiplyUpCoordinates(int32 &x, int32 &y) {
 	if (!getGameOption(OPT_NATIVECOORDINATES))
 		return;
 
-	x *= _screenResolutionMultiplier;
-	y *= _screenResolutionMultiplier;
+	x *= _graphics->_screenResolutionMultiplier;
+	y *= _graphics->_screenResolutionMultiplier;
 }
 
 void AGSEngine::multiplyUpCoordinatesRoundUp(int32 &x, int32 &y) {
 	if (!getGameOption(OPT_NATIVECOORDINATES))
 		return;
 
-	x *= _screenResolutionMultiplier;
-	x += (_screenResolutionMultiplier - 1);
-	y *= _screenResolutionMultiplier;
-	y += (_screenResolutionMultiplier - 1);
+	x *= _graphics->_screenResolutionMultiplier;
+	x += (_graphics->_screenResolutionMultiplier - 1);
+	y *= _graphics->_screenResolutionMultiplier;
+	y += (_graphics->_screenResolutionMultiplier - 1);
 }
 
 int AGSEngine::divideDownCoordinate(int coord) {
-	return (getGameOption(OPT_NATIVECOORDINATES) ? coord : (coord / _screenResolutionMultiplier));
+	return (getGameOption(OPT_NATIVECOORDINATES) ? coord : (coord / _graphics->_screenResolutionMultiplier));
 }
 
 int AGSEngine::divideDownCoordinateRoundUp(int coord) {
-	return (getGameOption(OPT_NATIVECOORDINATES) ? coord : (coord / _screenResolutionMultiplier + _screenResolutionMultiplier - 1));
+	return (getGameOption(OPT_NATIVECOORDINATES) ? coord : (coord / _graphics->_screenResolutionMultiplier + _graphics->_screenResolutionMultiplier - 1));
 }
 
 // don't return until the provided blocking condition is satisfied
