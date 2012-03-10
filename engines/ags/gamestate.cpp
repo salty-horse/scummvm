@@ -46,6 +46,7 @@ GameState::GameState(AGSEngine *vm) : _vm(vm) {
 
 	// not inited in original?!
 	_stopDialogAtEnd = DIALOG_NONE;
+	_mouseCursorHidden = false;
 }
 
 void GameState::init() {

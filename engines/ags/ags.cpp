@@ -88,6 +88,7 @@ AGSEngine::~AGSEngine() {
 
 	delete _scriptState;
 
+	delete _graphics;
 	delete _sprites;
 
 	delete _audio;

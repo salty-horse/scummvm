@@ -174,6 +174,8 @@ AGSGraphics::AGSGraphics(AGSEngine *vm) : _vm(vm), _width(0), _height(0), _force
 }
 
 AGSGraphics::~AGSGraphics() {
+	_backBuffer.free();
+
 	delete _cursorObj;
 }
 
@@ -243,6 +245,8 @@ bool AGSGraphics::initGraphics() {
 	::initGraphics(_width, _height, _width != 320, &format);
 	// FIXME: check format?
 
+	_backBuffer.create(_width, _height, format);
+
 	return true;
 }
 
@@ -306,6 +310,8 @@ void AGSGraphics::draw() {
 		draw(_cursorObj);
 
 	// finally, update the screen
+	// FIXME: add dirty rectangling
+	g_system->copyRectToScreen((byte *)_backBuffer.pixels, _width * _vm->_gameFile->_colorDepth, 0, 0, _width, _height);
 	g_system->updateScreen();
 }
 
@@ -314,9 +320,44 @@ void AGSGraphics::draw(Drawable *item) {
 	const Graphics::Surface *surface = item->getDrawSurface();
 
 	// FIXME: lots of things
-	if (pos.x < 0 || pos.y < 0)
-		return;
-	g_system->copyRectToScreen((byte *)surface->pixels, surface->w * _vm->_gameFile->_colorDepth, pos.x, pos.y, surface->w, surface->h);
+
+	uint startX = 0, startY = 0;
+	if (pos.x < 0)
+		startX = -pos.x;
+	if (pos.y < 0)
+		startY = -pos.y;
+	uint width = surface->w, height = surface->h;
+	if (pos.x + width > _width)
+		width = _width - pos.x;
+	if (pos.y + height > _height)
+		height = _height - pos.y;
+
+	if (surface->format.bytesPerPixel == 1) {
+		for (uint y = 0; y < height - startY; ++y) {
+			byte *dest = (byte *)_backBuffer.getBasePtr(pos.x + startX, pos.y + y);
+			const byte *src = (byte *)surface->getBasePtr(startX, startY + y);
+			for (uint x = startX; x < width; ++x) {
+				byte data = *src++;
+				if (data != 0)
+					*dest = data;
+				dest++;
+			}
+		}
+	} else if (surface->format.bytesPerPixel == 2) {
+		for (uint y = 0; y < height - startY; ++y) {
+			uint16 *dest = (uint16 *)_backBuffer.getBasePtr(pos.x + startX, pos.y + y);
+			const uint16 *src = (uint16 *)surface->getBasePtr(startX, startY + y);
+			for (uint x = startX; x < width; ++x) {
+				uint16 data = *src++;
+				if (data != 0xf81f)
+					*dest = data;
+				dest++;
+			}
+		}
+	} else {
+		// FIXME
+		warning("blub");
+	}
 }
 
 void AGSGraphics::setMouseCursor(uint32 cursor) {
