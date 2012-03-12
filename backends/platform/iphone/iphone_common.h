@@ -23,6 +23,8 @@
 #ifndef BACKENDS_PLATFORM_IPHONE_IPHONE_COMMON_H
 #define BACKENDS_PLATFORM_IPHONE_IPHONE_COMMON_H
 
+#include "graphics/surface.h"
+
 enum InputEvent {
 	kInputMouseDown,
 	kInputMouseUp,
@@ -55,21 +57,40 @@ enum GraphicsModes {
 	kGraphicsModeNone = 1
 };
 
+struct VideoContext {
+	VideoContext() : asprectRatioCorrection(), screenWidth(), screenHeight(), overlayVisible(false),
+	                 overlayWidth(), overlayHeight(), mouseX(), mouseY(),
+	                 mouseHotspotX(), mouseHotspotY(), mouseWidth(), mouseHeight(),
+	                 mouseIsVisible(), graphicsMode(kGraphicsModeLinear), shakeOffsetY() {
+	}
+
+	// Game screen state
+	bool asprectRatioCorrection;
+	uint screenWidth, screenHeight;
+	Graphics::Surface screenTexture;
+
+	// Overlay state
+	bool overlayVisible;
+	uint overlayWidth, overlayHeight;
+	Graphics::Surface overlayTexture;
+
+	// Mouse cursor state
+	uint mouseX, mouseY;
+	int mouseHotspotX, mouseHotspotY;
+	uint mouseWidth, mouseHeight;
+	bool mouseIsVisible;
+	Graphics::Surface mouseTexture;
+
+	// Misc state
+	GraphicsModes graphicsMode;
+	int shakeOffsetY;
+};
+
 // On the ObjC side
-void iPhone_setGraphicsMode(GraphicsModes mode);
-void iPhone_updateScreen(int mouseX, int mouseY);
-void iPhone_updateScreenRect(unsigned short *screen, int x1, int y1, int x2, int y2);
-void iPhone_updateOverlayRect(unsigned short *screen, int x1, int y1, int x2, int y2);
-void iPhone_initSurface(int width, int height);
-void iPhone_setShakeOffset(int offset);
+void iPhone_updateScreen();
 bool iPhone_fetchEvent(int *outEvent, int *outX, int *outY);
 const char *iPhone_getDocumentsDir();
 bool iPhone_isHighResDevice();
-int iPhone_getScreenHeight();
-int iPhone_getScreenWidth();
-void iPhone_enableOverlay(int state);
-void iPhone_showCursor(int state);
-void iPhone_setMouseCursor(unsigned short *buffer, int width, int height, int hotspotX, int hotspotY);
 
 uint getSizeNextPOT(uint size);
 

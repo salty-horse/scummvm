@@ -30,6 +30,8 @@
 #include "common/timer.h"
 #include "common/util.h"
 
+#include "engines/advancedDetector.h"
+
 #include "graphics/palette.h"
 #include "graphics/surface.h"
 
@@ -60,7 +62,7 @@ DreamWebEngine::DreamWebEngine(OSystem *syst, const DreamWebGameDescription *gam
 	_channel0 = 0;
 	_channel1 = 0;
 
-	_language = gameDesc->desc.language;
+	_datafilePrefix = "DREAMWEB.";
 
 	_openChangeSize = kInventx+(4*kItempicsize);
 	_quitRequested = false;
@@ -87,7 +89,7 @@ DreamWebEngine::DreamWebEngine(OSystem *syst, const DreamWebGameDescription *gam
 	_speechCount = 0;
 	_charShift = 0;
 	_kerning = 0;
-	_brightness = 0;
+	_brightPalette = false;
 	_roomLoaded = 0;
 	_didZoom = 0;
 	_lineSpacing = 10;
@@ -364,7 +366,9 @@ Common::Error DreamWebEngine::run() {
 	_console = new DreamWebConsole(this);
 
 	ConfMan.registerDefault("dreamweb_originalsaveload", "false");
+	ConfMan.registerDefault("bright_palette", true);
 	_hasSpeech = Common::File::exists("speech/r01c0000.raw") && !ConfMan.getBool("speech_mute");
+	_brightPalette = ConfMan.getBool("bright_palette");
 
 	_timer->installTimerProc(vSyncInterrupt, 1000000 / 70, this, "dreamwebVSync");
 	dreamweb();
@@ -477,10 +481,9 @@ uint8 DreamWebEngine::modifyChar(uint8 c) const {
 	if (c < 128)
 		return c;
 
-	switch(_language) {
+	switch(getLanguage()) {
 	case Common::DE_DEU:
-		switch(c)
-		{
+		switch(c) {
 		case 129:
 			return 'Z' + 3;
 		case 132:
@@ -528,11 +531,8 @@ uint8 DreamWebEngine::modifyChar(uint8 c) const {
 	}
 }
 
-bool DreamWebEngine::isCD() {
-	return _gameDescription->desc.flags & ADGF_CD;
-}
-
 bool DreamWebEngine::hasSpeech() {
 	return isCD() && _hasSpeech;
 }
+
 } // End of namespace DreamWeb

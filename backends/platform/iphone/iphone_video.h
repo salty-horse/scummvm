@@ -32,9 +32,11 @@
 #include <OpenGLES/ES1/glext.h>
 
 #include "iphone_keyboard.h"
+#include "iphone_common.h"
 
 @interface iPhoneView : UIView {
-	void *_screenSurface;
+	VideoContext _videoContext;
+
 	NSMutableArray *_events;
 	SoftKeyboard *_keyboardView;
 
@@ -47,19 +49,36 @@
 
 	UIDeviceOrientation _orientation;
 
+	GLint _renderBufferWidth;
+	GLint _renderBufferHeight;
+
 	GLfloat _gameScreenVertCoords[4 * 2];
 	GLfloat _gameScreenTexCoords[4 * 2];
+	CGRect _gameScreenRect;
 
 	GLfloat _overlayVertCoords[4 * 2];
 	GLfloat _overlayTexCoords[4 * 2];
+	CGRect _overlayRect;
+
+	GLfloat _mouseVertCoords[4 * 2];
+	GLfloat _mouseTexCoords[4 * 2];
+	GLint _mouseHotspotX, _mouseHotspotY;
+	GLint _mouseWidth, _mouseHeight;
+	GLfloat _mouseScaleX, _mouseScaleY;
+
+	int _scaledShakeOffsetY;
+
+	UITouch *_firstTouch;
+	UITouch *_secondTouch;
 }
 
 - (id)initWithFrame:(struct CGRect)frame;
 
+- (VideoContext *)getVideoContext;
+
 - (void)drawRect:(CGRect)frame;
 
-- (void *)getSurface;
-
+- (void)createScreenTexture;
 - (void)initSurface;
 - (void)setViewTransformation;
 
@@ -71,6 +90,8 @@
 - (void)updateMouseSurface;
 - (void)clearColorBuffer;
 
+- (void)notifyMouseMove;
+- (void)updateMouseCursorScaling;
 - (void)updateMouseCursor;
 
 - (id)getEvent;
@@ -82,5 +103,7 @@
 - (void)applicationResume;
 
 @end
+
+extern iPhoneView *g_iPhoneViewInstance;
 
 #endif

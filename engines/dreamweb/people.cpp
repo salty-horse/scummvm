@@ -178,7 +178,7 @@ void DreamWebEngine::madman(ReelRoutine &routine) {
 			return;
 		}
 		if (newReelPointer == 10) {
-			loadTempText("DREAMWEB.T82");
+			loadTempText("T82");
 			_vars._combatCount = (uint8)-1;
 			_speechCount = 0;
 		}
@@ -262,7 +262,7 @@ void DreamWebEngine::gamer(ReelRoutine &routine) {
 	if (checkSpeed(routine)) {
 		uint8 v;
 		do {
-			v = 20 + randomNumber() % 5;
+			v = _rnd.getRandomNumberRng(20, 24);
 		} while (v == routine.reelPointer());
 		routine.setReelPointer(v);
 	}

@@ -20,6 +20,9 @@
  *
  */
 
+// Disable symbol overrides so that we can use system headers.
+#define FORBIDDEN_SYMBOL_ALLOW_ALL
+
 #include <UIKit/UIKit.h>
 #include <Foundation/NSThread.h>
 
@@ -38,12 +41,12 @@ void iphone_main(int argc, char *argv[]);
 - (void)didRotate:(NSNotification *)notification;
 @end
 
-static int gArgc;
-static char **gArgv;
+static int g_argc;
+static char **g_argv;
 
 int main(int argc, char **argv) {
-	gArgc = argc;
-	gArgv = argv;
+	g_argc = argc;
+	g_argv = argv;
 
 	NSAutoreleasePool *autoreleasePool = [
 		[NSAutoreleasePool alloc] init
@@ -66,7 +69,7 @@ int main(int argc, char **argv) {
 - (void)mainLoop:(id)param {
 	[[NSAutoreleasePool alloc] init];
 
-	iphone_main(gArgc, gArgv);
+	iphone_main(g_argc, g_argv);
 	exit(0);
 }
 
