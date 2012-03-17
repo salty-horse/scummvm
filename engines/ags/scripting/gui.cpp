@@ -2033,11 +2033,10 @@ RuntimeValue Script_GUI_get_BackgroundGraphic(AGSEngine *vm, GUIGroup *self, con
 // GUI: import attribute int BackgroundGraphic
 // Gets/sets the sprite used to draw the GUI's background image.
 RuntimeValue Script_GUI_set_BackgroundGraphic(AGSEngine *vm, GUIGroup *self, const Common::Array<RuntimeValue> &params) {
-	int value = params[0]._signedValue;
-	UNUSED(value);
+	int slot = params[0]._signedValue;
 
-	// FIXME
-	error("GUI::set_BackgroundGraphic unimplemented");
+	self->_bgPic = slot;
+	self->invalidate();
 
 	return RuntimeValue();
 }
