@@ -26,9 +26,9 @@
 #include "common/substream.h"
 #include "common/textconsole.h"
 
-#include "graphics/jpeg.h"
-#include "graphics/pict.h"
 #include "graphics/surface.h"
+#include "graphics/decoders/jpeg.h"
+#include "graphics/decoders/pict.h"
 
 namespace Graphics {
 
@@ -36,18 +36,25 @@ namespace Graphics {
 // http://developer.apple.com/legacy/mac/library/documentation/mac/QuickDraw/QuickDraw-461.html
 // http://developer.apple.com/legacy/mac/library/documentation/mac/QuickDraw/QuickDraw-269.html
 
-PictDecoder::PictDecoder(PixelFormat pixelFormat) {
-	_jpeg = new JPEG();
-	_pixelFormat = pixelFormat;
+PICTDecoder::PICTDecoder() {
+	_outputSurface = 0;
 }
 
-PictDecoder::~PictDecoder() {
-	delete _jpeg;
+PICTDecoder::~PICTDecoder() {
+	destroy();
 }
 
-#define OPCODE(a, b, c) _opcodes.push_back(PICTOpcode(a, &PictDecoder::b, c))
+void PICTDecoder::destroy() {
+	if (_outputSurface) {
+		_outputSurface->free();
+		delete _outputSurface;
+		_outputSurface = 0;
+	}
+}
 
-void PictDecoder::setupOpcodesCommon() {
+#define OPCODE(a, b, c) _opcodes.push_back(PICTOpcode(a, &PICTDecoder::b, c))
+
+void PICTDecoder::setupOpcodesCommon() {
 	OPCODE(0x0000, o_nop, "NOP");
 	OPCODE(0x0001, o_clip, "Clip");
 	OPCODE(0x0003, o_txFont, "TxFont");
@@ -63,14 +70,14 @@ void PictDecoder::setupOpcodesCommon() {
 	OPCODE(0x0C00, o_headerOp, "HeaderOp");
 }
 
-void PictDecoder::setupOpcodesNormal() {
+void PICTDecoder::setupOpcodesNormal() {
 	setupOpcodesCommon();
 	OPCODE(0x0098, on_packBitsRect, "PackBitsRect");
 	OPCODE(0x009A, on_directBitsRect, "DirectBitsRect");
 	OPCODE(0x8200, on_compressedQuickTime, "CompressedQuickTime");
 }
 
-void PictDecoder::setupOpcodesQuickTime() {
+void PICTDecoder::setupOpcodesQuickTime() {
 	setupOpcodesCommon();
 	OPCODE(0x0098, oq_packBitsRect, "PackBitsRect");
 	OPCODE(0x009A, oq_directBitsRect, "DirectBitsRect");
@@ -79,93 +86,93 @@ void PictDecoder::setupOpcodesQuickTime() {
 
 #undef OPCODE
 
-void PictDecoder::o_nop(Common::SeekableReadStream *) {
+void PICTDecoder::o_nop(Common::SeekableReadStream &) {
 	// Nothing to do
 }
 
-void PictDecoder::o_clip(Common::SeekableReadStream *stream) {
+void PICTDecoder::o_clip(Common::SeekableReadStream &stream) {
 	// Ignore
-	stream->skip(stream->readUint16BE() - 2);
+	stream.skip(stream.readUint16BE() - 2);
 }
 
-void PictDecoder::o_txFont(Common::SeekableReadStream *stream) {
+void PICTDecoder::o_txFont(Common::SeekableReadStream &stream) {
 	// Ignore
-	stream->readUint16BE();
+	stream.readUint16BE();
 }
 
-void PictDecoder::o_txFace(Common::SeekableReadStream *stream) {
+void PICTDecoder::o_txFace(Common::SeekableReadStream &stream) {
 	// Ignore
-	stream->readByte();
+	stream.readByte();
 }
 
-void PictDecoder::o_pnSize(Common::SeekableReadStream *stream) {
+void PICTDecoder::o_pnSize(Common::SeekableReadStream &stream) {
 	// Ignore
-	stream->readUint16BE();
-	stream->readUint16BE();
+	stream.readUint16BE();
+	stream.readUint16BE();
 }
 
-void PictDecoder::o_txSize(Common::SeekableReadStream *stream) {
+void PICTDecoder::o_txSize(Common::SeekableReadStream &stream) {
 	// Ignore
-	stream->readUint16BE();
+	stream.readUint16BE();
 }
 
-void PictDecoder::o_txRatio(Common::SeekableReadStream *stream) {
+void PICTDecoder::o_txRatio(Common::SeekableReadStream &stream) {
 	// Ignore
-	stream->readUint16BE();
-	stream->readUint16BE();
-	stream->readUint16BE();
-	stream->readUint16BE();
+	stream.readUint16BE();
+	stream.readUint16BE();
+	stream.readUint16BE();
+	stream.readUint16BE();
 }
 
-void PictDecoder::o_versionOp(Common::SeekableReadStream *stream) {
+void PICTDecoder::o_versionOp(Common::SeekableReadStream &stream) {
 	// We only support v2 extended
-	if (stream->readUint16BE() != 0x02FF)
+	if (stream.readUint16BE() != 0x02FF)
 		error("Unknown PICT version");
 }
 
-void PictDecoder::o_longText(Common::SeekableReadStream *stream) {
+void PICTDecoder::o_longText(Common::SeekableReadStream &stream) {
 	// Ignore
-	stream->readUint16BE();
-	stream->readUint16BE();
-	stream->skip(stream->readByte());
+	stream.readUint16BE();
+	stream.readUint16BE();
+	stream.skip(stream.readByte());
 }
 
-void PictDecoder::o_longComment(Common::SeekableReadStream *stream) {
+void PICTDecoder::o_longComment(Common::SeekableReadStream &stream) {
 	// Ignore
-	stream->readUint16BE();
-	stream->skip(stream->readUint16BE());
+	stream.readUint16BE();
+	stream.skip(stream.readUint16BE());
 }
 
-void PictDecoder::o_opEndPic(Common::SeekableReadStream *stream) {
+void PICTDecoder::o_opEndPic(Common::SeekableReadStream &stream) {
 	// We've reached the end of the picture
 	_continueParsing = false;
 }
 
-void PictDecoder::o_headerOp(Common::SeekableReadStream *stream) {
+void PICTDecoder::o_headerOp(Common::SeekableReadStream &stream) {
 	// Read the basic header, but we don't really have to do anything with it
-	/* uint16 version = */ stream->readUint16BE();
-	stream->readUint16BE(); // Reserved
-	/* uint32 hRes = */ stream->readUint32BE();
-	/* uint32 vRes = */ stream->readUint32BE();
+	/* uint16 version = */ stream.readUint16BE();
+	stream.readUint16BE(); // Reserved
+	/* uint32 hRes = */ stream.readUint32BE();
+	/* uint32 vRes = */ stream.readUint32BE();
 	Common::Rect origResRect;
-	origResRect.top = stream->readUint16BE();
-	origResRect.left = stream->readUint16BE();
-	origResRect.bottom = stream->readUint16BE();
-	origResRect.right = stream->readUint16BE();
-	stream->readUint32BE(); // Reserved
+	origResRect.top = stream.readUint16BE();
+	origResRect.left = stream.readUint16BE();
+	origResRect.bottom = stream.readUint16BE();
+	origResRect.right = stream.readUint16BE();
+	stream.readUint32BE(); // Reserved
 }
 
-void PictDecoder::on_packBitsRect(Common::SeekableReadStream *stream) {
+void PICTDecoder::on_packBitsRect(Common::SeekableReadStream &stream) {
 	// Unpack data (8bpp or lower)
 	unpackBitsRect(stream, true);
 }
 
-void PictDecoder::on_directBitsRect(Common::SeekableReadStream *stream) {
+void PICTDecoder::on_directBitsRect(Common::SeekableReadStream &stream) {
 	// Unpack data (16bpp or higher)
 	unpackBitsRect(stream, false);
 }
 
-void PictDecoder::on_compressedQuickTime(Common::SeekableReadStream *stream) {
+void PICTDecoder::on_compressedQuickTime(Common::SeekableReadStream &stream) {
 	// OK, here's the fun. We get to completely change how QuickDraw draws
 	// the data in PICT files.
 
@@ -173,63 +180,57 @@ void PictDecoder::on_compressedQuickTime(Common::SeekableReadStream *stream) {
 	_opcodes.clear();
 	setupOpcodesQuickTime();
 
-	// We set up the surface for JPEG here too
-	if (!_outputSurface)
-		_outputSurface = new Graphics::Surface();
-	_outputSurface->create(_imageRect.width(), _imageRect.height(), _pixelFormat);
-
 	// We'll decode the first QuickTime data from here, but the QuickTime-specific
 	// opcodes will take over from here on out. Normal opcodes, signing off.
 	decodeCompressedQuickTime(stream);
 }
 
-void PictDecoder::oq_packBitsRect(Common::SeekableReadStream *stream) {
+void PICTDecoder::oq_packBitsRect(Common::SeekableReadStream &stream) {
 	// Skip any data here (8bpp or lower)
 	skipBitsRect(stream, true);
 }
 
-void PictDecoder::oq_directBitsRect(Common::SeekableReadStream *stream) {
+void PICTDecoder::oq_directBitsRect(Common::SeekableReadStream &stream) {
 	// Skip any data here (16bpp or higher)
 	skipBitsRect(stream, false);
 }
 
-void PictDecoder::oq_compressedQuickTime(Common::SeekableReadStream *stream) {
+void PICTDecoder::oq_compressedQuickTime(Common::SeekableReadStream &stream) {
 	// Just pass the data along
 	decodeCompressedQuickTime(stream);
 }
 
-Surface *PictDecoder::decodeImage(Common::SeekableReadStream *stream, byte *palette) {
-	assert(stream);
+bool PICTDecoder::loadStream(Common::SeekableReadStream &stream) {
+	destroy();
 
 	// Initialize opcodes to their normal state
 	_opcodes.clear();
 	setupOpcodesNormal();
 
-	_outputSurface = 0;
 	_continueParsing = true;
 	memset(_palette, 0, sizeof(_palette));
 
-	uint16 fileSize = stream->readUint16BE();
+	uint16 fileSize = stream.readUint16BE();
 
 	// If we have no file size here, we probably have a PICT from a file
 	// and not a resource. The other two bytes are the fileSize which we
 	// don't actually need (and already read if from a resource).
 	if (!fileSize)
-		stream->seek(512 + 2);
+		stream.seek(512 + 2);
 
-	_imageRect.top = stream->readUint16BE();
-	_imageRect.left = stream->readUint16BE();
-	_imageRect.bottom = stream->readUint16BE();
-	_imageRect.right = stream->readUint16BE();
+	_imageRect.top = stream.readUint16BE();
+	_imageRect.left = stream.readUint16BE();
+	_imageRect.bottom = stream.readUint16BE();
+	_imageRect.right = stream.readUint16BE();
 	_imageRect.debugPrint(0, "PICT Rect:");
 
 	// NOTE: This is only a subset of the full PICT format.
 	//     - Only V2 (Extended) Images Supported
 	//     - CompressedQuickTime (JPEG) compressed data is supported
 	//     - DirectBitsRect/PackBitsRect compressed data is supported
-	for (uint32 opNum = 0; !stream->eos() && !stream->err() && stream->pos() < stream->size() && _continueParsing; opNum++) {
+	for (uint32 opNum = 0; !stream.eos() && !stream.err() && stream.pos() < stream.size() && _continueParsing; opNum++) {
 		// PICT v2 opcodes are two bytes
-		uint16 opcode = stream->readUint16BE();
+		uint16 opcode = stream.readUint16BE();
 
 		if (opNum == 0 && opcode != 0x0011)
 			error("Cannot find PICT version opcode");
@@ -238,7 +239,7 @@ Surface *PictDecoder::decodeImage(Common::SeekableReadStream *stream, byte *pale
 
 		// Since opcodes are word-aligned, we need to mark our starting
 		// position here.
-		uint32 startPos = stream->pos();
+		uint32 startPos = stream.pos();
 
 		for (uint32 i = 0; i < _opcodes.size(); i++) {
 			if (_opcodes[i].op == opcode) {
@@ -252,76 +253,70 @@ Surface *PictDecoder::decodeImage(Common::SeekableReadStream *stream, byte *pale
 		}
 
 		// Align
-		stream->skip((stream->pos() - startPos) & 1);
+		stream.skip((stream.pos() - startPos) & 1);
 	}
-
-	// If we got a palette throughout this nonsense, go and grab it
-	if (palette)
-		memcpy(palette, _palette, 256 * 3);
 
 	return _outputSurface;
 }
 
-PictDecoder::PixMap PictDecoder::readPixMap(Common::SeekableReadStream *stream, bool hasBaseAddr) {
+PICTDecoder::PixMap PICTDecoder::readPixMap(Common::SeekableReadStream &stream, bool hasBaseAddr) {
 	PixMap pixMap;
-	pixMap.baseAddr = hasBaseAddr ? stream->readUint32BE() : 0;
-	pixMap.rowBytes = stream->readUint16BE() & 0x3fff;
-	pixMap.bounds.top = stream->readUint16BE();
-	pixMap.bounds.left = stream->readUint16BE();
-	pixMap.bounds.bottom = stream->readUint16BE();
-	pixMap.bounds.right = stream->readUint16BE();
-	pixMap.pmVersion = stream->readUint16BE();
-	pixMap.packType = stream->readUint16BE();
-	pixMap.packSize = stream->readUint32BE();
-	pixMap.hRes = stream->readUint32BE();
-	pixMap.vRes = stream->readUint32BE();
-	pixMap.pixelType = stream->readUint16BE();
-	pixMap.pixelSize = stream->readUint16BE();
-	pixMap.cmpCount = stream->readUint16BE();
-	pixMap.cmpSize = stream->readUint16BE();
-	pixMap.planeBytes = stream->readUint32BE();
-	pixMap.pmTable = stream->readUint32BE();
-	pixMap.pmReserved = stream->readUint32BE();
+	pixMap.baseAddr = hasBaseAddr ? stream.readUint32BE() : 0;
+	pixMap.rowBytes = stream.readUint16BE() & 0x3fff;
+	pixMap.bounds.top = stream.readUint16BE();
+	pixMap.bounds.left = stream.readUint16BE();
+	pixMap.bounds.bottom = stream.readUint16BE();
+	pixMap.bounds.right = stream.readUint16BE();
+	pixMap.pmVersion = stream.readUint16BE();
+	pixMap.packType = stream.readUint16BE();
+	pixMap.packSize = stream.readUint32BE();
+	pixMap.hRes = stream.readUint32BE();
+	pixMap.vRes = stream.readUint32BE();
+	pixMap.pixelType = stream.readUint16BE();
+	pixMap.pixelSize = stream.readUint16BE();
+	pixMap.cmpCount = stream.readUint16BE();
+	pixMap.cmpSize = stream.readUint16BE();
+	pixMap.planeBytes = stream.readUint32BE();
+	pixMap.pmTable = stream.readUint32BE();
+	pixMap.pmReserved = stream.readUint32BE();
 	return pixMap;
 }
 
 struct PackBitsRectData {
-	PictDecoder::PixMap pixMap;
+	PICTDecoder::PixMap pixMap;
 	Common::Rect srcRect;
 	Common::Rect dstRect;
 	uint16 mode;
 };
 
-void PictDecoder::unpackBitsRect(Common::SeekableReadStream *stream, bool hasPalette) {
-	static const PixelFormat directBitsFormat16 = PixelFormat(2, 5, 5, 5, 0, 10, 5, 0, 0);
-
+void PICTDecoder::unpackBitsRect(Common::SeekableReadStream &stream, bool hasPalette) {
 	PackBitsRectData packBitsData;
 	packBitsData.pixMap = readPixMap(stream, !hasPalette);
 
 	// Read in the palette if there is one present
 	if (hasPalette) {
 		// See http://developer.apple.com/legacy/mac/library/documentation/mac/QuickDraw/QuickDraw-267.html
-		stream->readUint32BE(); // seed
-		stream->readUint16BE(); // flags
-		uint16 colorCount = stream->readUint16BE() + 1;
+		stream.readUint32BE(); // seed
+		stream.readUint16BE(); // flags
+		uint16 colorCount = stream.readUint16BE() + 1;
 
 		for (uint32 i = 0; i < colorCount; i++) {
-			stream->readUint16BE();
-			_palette[i * 3] = stream->readUint16BE() >> 8;
-			_palette[i * 3 + 1] = stream->readUint16BE() >> 8;
-			_palette[i * 3 + 2] = stream->readUint16BE() >> 8;
+			stream.readUint16BE();
+			_palette[i * 3] = stream.readUint16BE() >> 8;
+			_palette[i * 3 + 1] = stream.readUint16BE() >> 8;
+			_palette[i * 3 + 2] = stream.readUint16BE() >> 8;
 		}
 	}
 
-	packBitsData.srcRect.top = stream->readUint16BE();
-	packBitsData.srcRect.left = stream->readUint16BE();
-	packBitsData.srcRect.bottom = stream->readUint16BE();
-	packBitsData.srcRect.right = stream->readUint16BE();
-	packBitsData.dstRect.top = stream->readUint16BE();
-	packBitsData.dstRect.left = stream->readUint16BE();
-	packBitsData.dstRect.bottom = stream->readUint16BE();
-	packBitsData.dstRect.right = stream->readUint16BE();
-	packBitsData.mode = stream->readUint16BE();
+	packBitsData.srcRect.top = stream.readUint16BE();
+	packBitsData.srcRect.left = stream.readUint16BE();
+	packBitsData.srcRect.bottom = stream.readUint16BE();
+	packBitsData.srcRect.right = stream.readUint16BE();
+	packBitsData.dstRect.top = stream.readUint16BE();
+	packBitsData.dstRect.left = stream.readUint16BE();
+	packBitsData.dstRect.bottom = stream.readUint16BE();
+	packBitsData.dstRect.right = stream.readUint16BE();
+	packBitsData.mode = stream.readUint16BE();
 
 	uint16 width = packBitsData.srcRect.width();
 	uint16 height = packBitsData.srcRect.height();
@@ -334,9 +329,6 @@ void PictDecoder::unpackBitsRect(Common::SeekableReadStream *stream, bool hasPal
 		bytesPerPixel = packBitsData.pixMap.cmpCount;
 	else
 		bytesPerPixel = packBitsData.pixMap.pixelSize / 8;
-
-	_outputSurface = new Graphics::Surface();
-	_outputSurface->create(width, height, (bytesPerPixel == 1) ? PixelFormat::createFormatCLUT8() : _pixelFormat);
 
 	// Ensure we have enough space in the buffer to hold an entire line's worth of pixels
 	uint32 lineSize = MAX<int>(width * bytesPerPixel + (8 * 2 / packBitsData.pixMap.pixelSize), packBitsData.pixMap.rowBytes);
@@ -355,56 +347,48 @@ void PictDecoder::unpackBitsRect(Common::SeekableReadStream *stream, bool hasPal
 			// TODO: Finish this. Hasn't been needed (yet).
 			error("Unpacked DirectBitsRect data (not padded)");
 		} else if (packBitsData.pixMap.packType == 0 || packBitsData.pixMap.packType > 2) { // Packed
-			uint16 byteCount = (packBitsData.pixMap.rowBytes > 250) ? stream->readUint16BE() : stream->readByte();
-			unpackBitsLine(buffer + i * _outputSurface->w * bytesPerPixel, packBitsData.pixMap.rowBytes, stream->readStream(byteCount), packBitsData.pixMap.pixelSize, bytesPerPixel);
+			uint16 byteCount = (packBitsData.pixMap.rowBytes > 250) ? stream.readUint16BE() : stream.readByte();
+			unpackBitsLine(buffer + i * width * bytesPerPixel, packBitsData.pixMap.rowBytes, stream.readStream(byteCount), packBitsData.pixMap.pixelSize, bytesPerPixel);
 		}
 	}
+
+	_outputSurface = new Graphics::Surface();
 
 	switch (bytesPerPixel) {
 	case 1:
 		// Just copy to the image
+		_outputSurface->create(width, height, PixelFormat::createFormatCLUT8());
 		memcpy(_outputSurface->pixels, buffer, _outputSurface->w * _outputSurface->h);
 		break;
 	case 2:
 		// Convert from 16-bit to whatever surface we need
-		for (uint16 y = 0; y < _outputSurface->h; y++) {
-			for (uint16 x = 0; x < _outputSurface->w; x++) {
-				byte r = 0, g = 0, b = 0;
-				uint32 color = READ_BE_UINT16(buffer + (y * _outputSurface->w + x) * bytesPerPixel);
-				directBitsFormat16.colorToRGB(color, r, g, b);
-				if (_pixelFormat.bytesPerPixel == 2)
-					*((uint16 *)_outputSurface->getBasePtr(x, y)) = _pixelFormat.RGBToColor(r, g, b);
-				else
-					*((uint32 *)_outputSurface->getBasePtr(x, y)) = _pixelFormat.RGBToColor(r, g, b);
-			}
-		}
+		_outputSurface->create(width, height, PixelFormat(2, 5, 5, 5, 0, 10, 5, 0, 0));
+		for (uint16 y = 0; y < _outputSurface->h; y++)
+			for (uint16 x = 0; x < _outputSurface->w; x++)
+				WRITE_UINT16(_outputSurface->getBasePtr(x, y), READ_UINT16(buffer + (y * _outputSurface->w + x) * 2));
 		break;
 	case 3:
 		// Convert from 24-bit (planar!) to whatever surface we need
+		_outputSurface->create(width, height, Graphics::PixelFormat(4, 8, 8, 8, 8, 24, 16, 8, 0));
 		for (uint16 y = 0; y < _outputSurface->h; y++) {
 			for (uint16 x = 0; x < _outputSurface->w; x++) {
 				byte r = *(buffer + y * _outputSurface->w * 3 + x);
 				byte g = *(buffer + y * _outputSurface->w * 3 + _outputSurface->w + x);
 				byte b = *(buffer + y * _outputSurface->w * 3 + _outputSurface->w * 2 + x);
-				if (_pixelFormat.bytesPerPixel == 2)
-					*((uint16 *)_outputSurface->getBasePtr(x, y)) = _pixelFormat.RGBToColor(r, g, b);
-				else
-					*((uint32 *)_outputSurface->getBasePtr(x, y)) = _pixelFormat.RGBToColor(r, g, b);
+				*((uint32 *)_outputSurface->getBasePtr(x, y)) = _outputSurface->format.RGBToColor(r, g, b);
 			}
 		}
 		break;
 	case 4:
 		// Convert from 32-bit (planar!) to whatever surface we need
+		_outputSurface->create(width, height, Graphics::PixelFormat(4, 8, 8, 8, 8, 24, 16, 8, 0));
 		for (uint16 y = 0; y < _outputSurface->h; y++) {
 			for (uint16 x = 0; x < _outputSurface->w; x++) {
 				byte r = *(buffer + y * _outputSurface->w * 4 + x);
 				byte g = *(buffer + y * _outputSurface->w * 4 + _outputSurface->w + x);
 				byte b = *(buffer + y * _outputSurface->w * 4 + _outputSurface->w * 2 + x);
 				byte a = *(buffer + y * _outputSurface->w * 4 + _outputSurface->w * 3 + x);
-				if (_pixelFormat.bytesPerPixel == 2)
-					*((uint16 *)_outputSurface->getBasePtr(x, y)) = _pixelFormat.ARGBToColor(r, g, b, a);
-				else
-					*((uint32 *)_outputSurface->getBasePtr(x, y)) = _pixelFormat.ARGBToColor(r, g, b, a);
+				*((uint32 *)_outputSurface->getBasePtr(x, y)) = _outputSurface->format.ARGBToColor(r, g, b, a);
 			}
 		}
 		break;
@@ -413,7 +397,7 @@ void PictDecoder::unpackBitsRect(Common::SeekableReadStream *stream, bool hasPal
 	delete[] buffer;
 }
 
-void PictDecoder::unpackBitsLine(byte *out, uint32 length, Common::SeekableReadStream *data, byte bitsPerPixel, byte bytesPerPixel) {
+void PICTDecoder::unpackBitsLine(byte *out, uint32 length, Common::SeekableReadStream *data, byte bitsPerPixel, byte bytesPerPixel) {
 	uint32 dataDecoded = 0;
 	byte bytesPerDecode = (bytesPerPixel == 2) ? 2 : 1;
 
@@ -426,7 +410,7 @@ void PictDecoder::unpackBitsLine(byte *out, uint32 length, Common::SeekableReadS
 
 			for (uint32 i = 0; i < runSize; i++) {
 				if (bytesPerDecode == 2) {
-					WRITE_BE_UINT16(out, value);
+					WRITE_UINT16(out, value);
 					out += 2;
 				} else {
 					outputPixelBuffer(out, value, bitsPerPixel);
@@ -434,12 +418,19 @@ void PictDecoder::unpackBitsLine(byte *out, uint32 length, Common::SeekableReadS
 			}
 			dataDecoded += runSize * bytesPerDecode;
 		} else {
-			uint32 runSize = (op + 1) * bytesPerDecode;
+			uint32 runSize = op + 1;
 
-			for (uint32 i = 0; i < runSize; i++)
-				outputPixelBuffer(out, data->readByte(), bitsPerPixel);
+			if (bytesPerDecode == 1) {
+				for (uint32 i = 0; i < runSize; i++)
+					outputPixelBuffer(out, data->readByte(), bitsPerPixel);
+			} else {
+				for (uint32 i = 0; i < runSize; i++) {
+					WRITE_UINT16(out, data->readUint16BE());
+					out += 2;
+				}
+			}
 
-			dataDecoded += runSize;
+			dataDecoded += runSize * bytesPerDecode;
 		}
 	}
 
@@ -453,52 +444,7 @@ void PictDecoder::unpackBitsLine(byte *out, uint32 length, Common::SeekableReadS
 	delete data;
 }
 
-void PictDecoder::skipBitsRect(Common::SeekableReadStream *stream, bool hasPalette) {
-	// Step through a PackBitsRect/DirectBitsRect function
-
-	if (!hasPalette)
-		stream->readUint32BE();
-
-	uint16 rowBytes = stream->readUint16BE();
-	uint16 height = stream->readUint16BE();
-	stream->readUint16BE();
-	height = stream->readUint16BE() - height;
-	stream->readUint16BE();
-
-	uint16 packType;
-
-	// Top two bits signify PixMap vs BitMap
-	if (rowBytes & 0xC000) {
-		// PixMap
-		stream->readUint16BE();
-		packType = stream->readUint16BE();
-		stream->skip(14);
-		stream->readUint16BE(); // pixelSize
-		stream->skip(16);
-
-		if (hasPalette) {
-			stream->readUint32BE();
-			stream->readUint16BE();
-			stream->skip((stream->readUint16BE() + 1) * 8);
-		}
-
-		rowBytes &= 0x3FFF;
-	} else {
-		// BitMap
-		packType = 0;
-	}
-
-	stream->skip(18);
-
-	for (uint16 i = 0; i < height; i++) {
-		if (packType == 1 || packType == 2 || rowBytes < 8)
-			error("Unpacked PackBitsRect data");
-		else if (packType == 0 || packType > 2)
-			stream->skip((rowBytes > 250) ? stream->readUint16BE() : stream->readByte());
-	}
-}
-
-void PictDecoder::outputPixelBuffer(byte *&out, byte value, byte bitsPerPixel) {
+void PICTDecoder::outputPixelBuffer(byte *&out, byte value, byte bitsPerPixel) {
 	switch (bitsPerPixel) {
 	case 1:
 		for (int i = 7; i >= 0; i--)
@@ -517,56 +463,105 @@ void PictDecoder::outputPixelBuffer(byte *&out, byte value, byte bitsPerPixel) {
 	}
 }
 
+void PICTDecoder::skipBitsRect(Common::SeekableReadStream &stream, bool hasPalette) {
+	// Step through a PackBitsRect/DirectBitsRect function
+
+	if (!hasPalette)
+		stream.readUint32BE();
+
+	uint16 rowBytes = stream.readUint16BE();
+	uint16 height = stream.readUint16BE();
+	stream.readUint16BE();
+	height = stream.readUint16BE() - height;
+	stream.readUint16BE();
+
+	uint16 packType;
+
+	// Top two bits signify PixMap vs BitMap
+	if (rowBytes & 0xC000) {
+		// PixMap
+		stream.readUint16BE();
+		packType = stream.readUint16BE();
+		stream.skip(14);
+		stream.readUint16BE(); // pixelSize
+		stream.skip(16);
+
+		if (hasPalette) {
+			stream.readUint32BE();
+			stream.readUint16BE();
+			stream.skip((stream.readUint16BE() + 1) * 8);
+		}
+
+		rowBytes &= 0x3FFF;
+	} else {
+		// BitMap
+		packType = 0;
+	}
+
+	stream.skip(18);
+
+	for (uint16 i = 0; i < height; i++) {
+		if (packType == 1 || packType == 2 || rowBytes < 8)
+			error("Unpacked PackBitsRect data");
+		else if (packType == 0 || packType > 2)
+			stream.skip((rowBytes > 250) ? stream.readUint16BE() : stream.readByte());
+	}
+}
+
 // Compressed QuickTime details can be found here:
 // http://developer.apple.com/legacy/mac/library/#documentation/QuickTime/Rm/CompressDecompress/ImageComprMgr/B-Chapter/2TheImageCompression.html
 // http://developer.apple.com/legacy/mac/library/#documentation/QuickTime/Rm/CompressDecompress/ImageComprMgr/F-Chapter/6WorkingwiththeImage.html
-
-void PictDecoder::decodeCompressedQuickTime(Common::SeekableReadStream *stream) {
+void PICTDecoder::decodeCompressedQuickTime(Common::SeekableReadStream &stream) {
 	// First, read all the fields from the opcode
-	uint32 dataSize = stream->readUint32BE();
-	uint32 startPos = stream->pos();
+	uint32 dataSize = stream.readUint32BE();
+	uint32 startPos = stream.pos();
 
-	/* uint16 version = */ stream->readUint16BE();
+	/* uint16 version = */ stream.readUint16BE();
 
 	// Read in the display matrix
 	uint32 matrix[3][3];
 	for (uint32 i = 0; i < 3; i++)
 		for (uint32 j = 0; j < 3; j++)
-			matrix[i][j] = stream->readUint32BE();
+			matrix[i][j] = stream.readUint32BE();
 
 	// We currently only support offseting images vertically from the matrix
 	uint16 xOffset = 0;
 	uint16 yOffset = matrix[2][1] >> 16;
 
-	uint32 matteSize = stream->readUint32BE();
-	stream->skip(8); // matte rect
-	/* uint16 transferMode = */ stream->readUint16BE();
-	stream->skip(8); // src rect
-	/* uint32 accuracy = */ stream->readUint32BE();
-	uint32 maskSize = stream->readUint32BE();
+	uint32 matteSize = stream.readUint32BE();
+	stream.skip(8); // matte rect
+	/* uint16 transferMode = */ stream.readUint16BE();
+	stream.skip(8); // src rect
+	/* uint32 accuracy = */ stream.readUint32BE();
+	uint32 maskSize = stream.readUint32BE();
 
 	// Skip the matte and mask
-	stream->skip(matteSize + maskSize);
+	stream.skip(matteSize + maskSize);
 	
 	// Now we've reached the image descriptor, so read the relevant data from that
-	uint32 idStart = stream->pos();
-	uint32 idSize = stream->readUint32BE();
-	stream->skip(40); // miscellaneous stuff
-	uint32 jpegSize = stream->readUint32BE();
-	stream->skip(idSize - (stream->pos() - idStart)); // more useless stuff
+	uint32 idStart = stream.pos();
+	uint32 idSize = stream.readUint32BE();
+	stream.skip(40); // miscellaneous stuff
+	uint32 jpegSize = stream.readUint32BE();
+	stream.skip(idSize - (stream.pos() - idStart)); // more useless stuff
 
-	Common::SeekableReadStream *jpegStream = new Common::SeekableSubReadStream(stream, stream->pos(), stream->pos() + jpegSize);
+	Common::SeekableSubReadStream jpegStream(&stream, stream.pos(), stream.pos() + jpegSize);
 
-	if (!_jpeg->read(jpegStream))
-		error("PictDecoder::decodeCompressedQuickTime(): Could not decode JPEG data");
+	JPEGDecoder jpeg;
+	if (!jpeg.loadStream(jpegStream))
+		error("PICTDecoder::decodeCompressedQuickTime(): Could not decode JPEG data");
 
-	Graphics::Surface *jpegSurface = _jpeg->getSurface(_pixelFormat);
+	const Graphics::Surface *jpegSurface = jpeg.getSurface();
+
+	if (!_outputSurface) {
+		_outputSurface = new Graphics::Surface();
+		_outputSurface->create(_imageRect.width(), _imageRect.height(), jpegSurface->format);
+	}
 
 	for (uint16 y = 0; y < jpegSurface->h; y++)
-		memcpy(_outputSurface->getBasePtr(0 + xOffset, y + yOffset), jpegSurface->getBasePtr(0, y), jpegSurface->w * _pixelFormat.bytesPerPixel);
+		memcpy(_outputSurface->getBasePtr(0 + xOffset, y + yOffset), jpegSurface->getBasePtr(0, y), jpegSurface->w * jpegSurface->format.bytesPerPixel);
 
-	stream->seek(startPos + dataSize);
-	delete jpegStream;
+	stream.seek(startPos + dataSize);
 }
 
 } // End of namespace Graphics
