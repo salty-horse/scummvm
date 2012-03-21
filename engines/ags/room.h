@@ -58,6 +58,7 @@ struct FullAnimation {
 
 struct RoomRegion : public ScriptObject {
 	RoomRegion() : _interaction(NULL), _lightLevel(0), _tintLevel(0) { }
+	const char *getObjectTypeName() { return "RoomRegion"; }
 
 	NewInteraction *_interaction;
 	InteractionScript _interactionScripts;
@@ -67,6 +68,7 @@ struct RoomRegion : public ScriptObject {
 
 struct RoomObject : public ScriptObject, public Drawable {
 	RoomObject(AGSEngine *vm) : _vm(vm), _interaction(NULL), _flags(0) { }
+	const char *getObjectTypeName() { return "RoomObject"; }
 
 	// originally from room, immutable
 	NewInteraction *_interaction;
@@ -128,6 +130,7 @@ struct RoomWalkArea {
 
 struct RoomHotspot : public ScriptObject {
 	RoomHotspot() : _interaction(NULL) { }
+	const char *getObjectTypeName() { return "RoomHotspot"; }
 
 	Common::Point _walkToPos;
 	Common::String _name;
