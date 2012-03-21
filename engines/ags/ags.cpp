@@ -91,6 +91,8 @@ AGSEngine::~AGSEngine() {
 	delete _graphics;
 	delete _sprites;
 
+	delete _state;
+
 	delete _audio;
 	delete _gameFile;
 	delete _resourceMan;

@@ -407,6 +407,7 @@ void AGSGraphics::loadFonts() {
 			bool antialias = (_vm->_gameFile->_colorDepth != 1) && _vm->getGameOption(OPT_ANTIALIASFONTS);
 			antialias = false; // FIXME: AA causes color-key artifacts at present
 			_fonts[i] = Graphics::loadTTFFont(*stream, fontSize, !antialias);
+			delete stream;
 			continue;
 		}
 		// try WFN
@@ -417,6 +418,7 @@ void AGSGraphics::loadFonts() {
 		if (!stream)
 			error("couldn't find font %d", i);
 		_fonts[i] = new WFNFont(stream);
+		delete stream;
 	}
 }
 
