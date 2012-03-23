@@ -224,10 +224,10 @@ RuntimeValue Script_Game_SetSaveGameDirectory(AGSEngine *vm, ScriptObject *, con
 	ScriptString *directory = (ScriptString *)params[0]._object;
 	UNUSED(directory);
 
-	// FIXME
-	error("Game::SetSaveGameDirectory unimplemented");
+	// FIXME - Should this be implemented in ScummVM?
+	warning("Game::SetSaveGameDirectory unimplemented");
 
-	return RuntimeValue();
+	return true;
 }
 
 // Game: import static void StopAudio(AudioType audioType=SCR_NO_VALUE)
