@@ -78,9 +78,7 @@ static void decompressLZSS(Common::SeekableReadStream *stream, byte *outBuf, uin
 	}
 }
 
-static Graphics::Surface readLZSSImage(Common::SeekableReadStream *stream, Graphics::PixelFormat format, byte *destPalette) {
-	Graphics::Surface surf;
-
+static Graphics::Surface readLZSSImage(Common::SeekableReadStream *stream, Graphics::PixelFormat format, byte *destPalette, uint32 imageBpp) {
 	stream->read(destPalette, 256 * 4);
 
 	uint32 uncompressedSize = stream->readUint32LE();
@@ -99,15 +97,37 @@ static Graphics::Surface readLZSSImage(Common::SeekableReadStream *stream, Graph
 	uint32 height = READ_LE_UINT32(buffer + 4);
 	if (widthBytes * height != uncompressedSize - 8)
 		error("readLZSSImage: %d bytes width and %d height doesn't match %d size", widthBytes, height, uncompressedSize);
-	if (widthBytes % format.bytesPerPixel != 0)
-		error("readLZSSImage: %d bytes width doesn't divide into %d bpp", widthBytes, format.bytesPerPixel);
-	surf.create(widthBytes / format.bytesPerPixel, height, format);
+	if (widthBytes % imageBpp != 0)
+		error("readLZSSImage: %d bytes width doesn't divide into %d bpp", widthBytes, imageBpp);
 
-	// FIXME: convert to correct format
+	Graphics::Surface surf;
+
+	Graphics::PixelFormat imgFormat;
+
+	switch (imageBpp) {
+	case 1:
+		// 8bpp
+		imgFormat = Graphics::PixelFormat::createFormatCLUT8();
+		break;
+	case 2:
+		// 16bpp: 565
+		imgFormat = Graphics::PixelFormat(2, 5, 6, 5, 0, 11, 5, 0, 0);
+		break;
+	default:
+		// 24bpp: RGB888
+		imgFormat = Graphics::PixelFormat(3, 8, 8, 8, 0, 16, 8, 0, 0);
+	}
+
+	surf.create(widthBytes / imageBpp, height, imgFormat);
 	memcpy(surf.pixels, buffer + 8, uncompressedSize - 8);
 
+	// Convert to correct format
+	Graphics::Surface *convertedSurf = surf.convertTo(format, destPalette);
+	Graphics::Surface outSurf = *convertedSurf;
+	delete convertedSurf;
+
 	delete[] buffer;
-	return surf;
+	return outSurf;
 }
 
 static Graphics::Surface readRLEImage(Common::SeekableReadStream *stream) {
@@ -620,7 +640,7 @@ void Room::readData(Common::SeekableReadStream *dta) {
 				}
 				// we already read the first scene as part of the main block
 				for (uint i = 1; i < _backgroundScenes.size(); ++i)
-					_backgroundScenes[i]._scene = readLZSSImage(dta, _vm->_graphics->getPixelFormat(), _backgroundScenes[i]._palette);
+					_backgroundScenes[i]._scene = readLZSSImage(dta, _vm->_graphics->getPixelFormat(), _backgroundScenes[i]._palette, _bytesPerPixel);
 			}
 			break;
 		case BLOCKTYPE_PROPERTIES:
@@ -1047,7 +1067,7 @@ void Room::readMainBlock(Common::SeekableReadStream *dta) {
 	BackgroundScene scene;
 	_backgroundScenes.push_back(scene);
 	if (_version >= 5)
-		_backgroundScenes[0]._scene = readLZSSImage(dta, _vm->_graphics->getPixelFormat(), _backgroundScenes[0]._palette);
+		_backgroundScenes[0]._scene = readLZSSImage(dta, _vm->_graphics->getPixelFormat(), _backgroundScenes[0]._palette, _bytesPerPixel);
 	else
 		_backgroundScenes[0]._scene = readRLEImage(dta);
 
