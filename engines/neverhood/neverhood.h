@@ -26,6 +26,8 @@
 #include "common/scummsys.h"
 #include "common/events.h"
 #include "common/keyboard.h"
+#include "common/platform.h"
+#include "common/language.h"
 #include "common/random.h"
 #include "common/savefile.h"
 #include "common/str-array.h"

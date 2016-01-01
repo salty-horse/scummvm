@@ -27,6 +27,8 @@
 #include "common/error.h"
 #include "common/util.h"
 #include "common/file.h"
+#include "common/language.h"
+#include "common/platform.h"
 #include "common/rect.h"
 #include "common/rendermode.h"
 #include "common/stack.h"

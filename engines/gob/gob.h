@@ -23,6 +23,8 @@
 #ifndef GOB_GOB_H
 #define GOB_GOB_H
 
+#include "common/language.h"
+#include "common/platform.h"
 #include "common/random.h"
 #include "common/system.h"
 #include "common/savefile.h"

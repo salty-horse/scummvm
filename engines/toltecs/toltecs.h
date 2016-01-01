@@ -28,6 +28,7 @@
 #include "common/events.h"
 #include "common/file.h"
 #include "common/keyboard.h"
+#include "common/language.h"
 #include "common/random.h"
 #include "common/textconsole.h"
 

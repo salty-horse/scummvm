@@ -29,6 +29,7 @@
 #include "common/debug.h"
 #include "common/debug-channels.h"
 #include "common/textconsole.h"
+#include "common/language.h"
 #include "common/rect.h"
 
 #include "engines/engine.h"

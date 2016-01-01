@@ -30,6 +30,7 @@
 #include "common/file.h"
 #include "common/hash-str.h"
 #include "common/keyboard.h"
+#include "common/language.h"
 #include "common/ptr.h"
 #include "common/random.h"
 #include "common/savefile.h"

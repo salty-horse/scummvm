@@ -23,6 +23,8 @@
 #ifndef GROOVIE_H
 #define GROOVIE_H
 
+#include "common/platform.h"
+
 #include "groovie/debug.h"
 #include "groovie/font.h"
 

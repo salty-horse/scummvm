@@ -25,6 +25,7 @@
 
 #include "engines/engine.h"
 #include "common/file.h"
+#include "common/platform.h"
 #include "hugo/console.h"
 #include "hugo/dialogs.h"
 

@@ -32,6 +32,7 @@
 #define LAB_LAB_H
 
 #include "common/system.h"
+#include "common/platform.h"
 #include "common/random.h"
 #include "common/rect.h"
 #include "common/savefile.h"

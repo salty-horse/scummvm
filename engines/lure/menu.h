@@ -25,6 +25,7 @@
 
 
 #include "common/str.h"
+#include "common/language.h"
 #include "lure/luredefs.h"
 #include "lure/disk.h"
 #include "lure/screen.h"

@@ -38,6 +38,7 @@
 
 #include "common/events.h"
 #include "common/util.h"
+#include "common/platform.h"
 #include "common/random.h"
 
 #define	MAX_starts	100

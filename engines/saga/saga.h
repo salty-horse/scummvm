@@ -26,6 +26,8 @@
 #include "engines/engine.h"
 
 #include "common/array.h"
+#include "common/language.h"
+#include "common/platform.h"
 #include "common/random.h"
 #include "common/memstream.h"
 #include "common/textconsole.h"

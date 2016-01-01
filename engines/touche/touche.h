@@ -26,6 +26,7 @@
 #include "common/array.h"
 #include "common/endian.h"
 #include "common/file.h"
+#include "common/language.h"
 #include "common/random.h"
 #include "common/rect.h"
 #include "common/util.h"

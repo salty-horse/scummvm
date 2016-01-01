@@ -25,6 +25,7 @@
 
 #include "engines/engine.h"
 #include "graphics/surface.h"
+#include "common/language.h"
 #include "common/random.h"
 #include "common/error.h"
 #include "toon/resource.h"

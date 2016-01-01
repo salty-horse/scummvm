@@ -29,6 +29,8 @@
 #include "common/file.h"
 #include "common/savefile.h"
 #include "common/util.h"
+#include "common/language.h"
+#include "common/platform.h"
 #include "common/random.h"
 
 #include "lure/disk.h"

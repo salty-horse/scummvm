@@ -21,6 +21,7 @@
  */
 
 #include "common/config-manager.h"
+#include "common/language.h"
 #include "common/system.h"
 #include "common/textconsole.h"
 

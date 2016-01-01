@@ -25,8 +25,6 @@
 
 #include "common/scummsys.h"
 #include "common/str.h"
-#include "common/language.h"
-#include "common/platform.h"
 #include "common/queue.h"
 #include "common/singleton.h"
 

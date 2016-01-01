@@ -26,6 +26,8 @@
 #include "engines/engine.h"
 #include "common/macresman.h"
 #include "common/util.h"
+#include "common/language.h"
+#include "common/platform.h"
 #include "common/random.h"
 #include "sci/engine/vm_types.h"	// for Selector
 #include "sci/debug.h"	// for DebugState

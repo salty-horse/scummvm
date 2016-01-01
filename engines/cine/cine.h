@@ -30,6 +30,8 @@
 #include "common/str.h"
 #include "common/hashmap.h"
 #include "common/hash-str.h"
+#include "common/language.h"
+#include "common/platform.h"
 #include "common/random.h"
 
 #include "engines/engine.h"

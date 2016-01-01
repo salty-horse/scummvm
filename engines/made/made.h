@@ -28,6 +28,7 @@
 #include "engines/engine.h"
 
 #include "common/random.h"
+#include "common/platform.h"
 
 /**
  * This is the namespace of the Made engine.

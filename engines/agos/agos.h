@@ -28,6 +28,8 @@
 #include "common/array.h"
 #include "common/error.h"
 #include "common/keyboard.h"
+#include "common/language.h"
+#include "common/platform.h"
 #include "common/random.h"
 #include "common/rect.h"
 #include "common/stack.h"

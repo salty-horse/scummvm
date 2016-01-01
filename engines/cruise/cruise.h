@@ -25,6 +25,8 @@
 
 #include "common/scummsys.h"
 #include "common/util.h"
+#include "common/language.h"
+#include "common/platform.h"
 #include "common/random.h"
 
 #include "engines/engine.h"

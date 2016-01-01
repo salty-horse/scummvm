@@ -29,6 +29,7 @@
 
 #include "common/random.h"
 #include "common/events.h"
+#include "common/language.h"
 
 #include "engines/engine.h"
 

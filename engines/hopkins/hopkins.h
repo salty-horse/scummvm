@@ -43,6 +43,8 @@
 #include "common/scummsys.h"
 #include "common/system.h"
 #include "common/error.h"
+#include "common/language.h"
+#include "common/platform.h"
 #include "common/random.h"
 #include "common/hash-str.h"
 #include "common/util.h"

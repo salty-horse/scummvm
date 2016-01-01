@@ -26,6 +26,8 @@
 #include "engines/engine.h"
 #include "common/error.h"
 #include "common/keyboard.h"
+#include "common/language.h"
+#include "common/platform.h"
 #include "common/rect.h"
 #include "common/util.h"
 #include "sword1/sworddefs.h"
