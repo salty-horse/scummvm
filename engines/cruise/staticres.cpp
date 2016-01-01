@@ -21,8 +21,6 @@
  */
 
 #include "cruise/staticres.h"
-#include "cruise/cruise.h"
-#include "common/util.h"
 
 namespace Cruise {
 

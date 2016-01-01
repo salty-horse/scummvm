@@ -25,6 +25,8 @@
 // Copyright (c) 2009 Alex Converse <alex dot converse at gmail dot com>
 
 #include "common/rdft.h"
+#include "common/fft.h"
+#include "common/math.h"
 
 namespace Common {
 

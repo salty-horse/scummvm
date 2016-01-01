@@ -21,7 +21,6 @@
  */
 
 #include "common/scummsys.h"
-#include "common/config-manager.h"
 #include "mads/mads.h"
 #include "mads/compression.h"
 #include "mads/resources.h"

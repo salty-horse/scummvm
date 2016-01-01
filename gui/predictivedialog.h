@@ -24,14 +24,18 @@
 #define GLOBAL_DIALOGS_H
 
 #include "gui/dialog.h"
+#include "common/keyboard.h"
 #include "common/str.h"
-#include "common/stream.h"
+
+namespace Common {
+class SeekableReadStream;
+}
 
 namespace GUI {
 
 class EditTextWidget;
 class ButtonWidget;
-class PicButtonWidget;
+class CommandSender;
 
 enum ButtonId {
 	kBtn1Act   = 0,

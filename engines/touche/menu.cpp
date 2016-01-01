@@ -26,7 +26,6 @@
 #include "common/savefile.h"
 
 #include "touche/graphics.h"
-#include "touche/midi.h"
 #include "touche/touche.h"
 
 namespace Touche {

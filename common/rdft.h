@@ -27,14 +27,12 @@
 #ifndef COMMON_RDFT_H
 #define COMMON_RDFT_H
 
-#include "common/scummsys.h"
-#include "common/math.h"
-#include "common/fft.h"
-
 #include "common/cosinetables.h"
 #include "common/sinetables.h"
 
 namespace Common {
+
+class FFT;
 
 /**
  * (Inverse) Real Discrete Fourier Transform.

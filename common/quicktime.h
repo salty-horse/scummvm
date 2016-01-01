@@ -33,12 +33,12 @@
 
 #include "common/array.h"
 #include "common/scummsys.h"
-#include "common/stream.h"
 #include "common/rational.h"
 #include "common/types.h"
 
 namespace Common {
 	class MacResManager;
+	class SeekableReadStream;
 
 /**
  * Parser for QuickTime/MPEG-4 files.
