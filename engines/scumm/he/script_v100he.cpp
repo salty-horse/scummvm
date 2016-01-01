@@ -22,6 +22,7 @@
 
 #ifdef ENABLE_HE
 
+#include "common/stream.h"
 #include "common/system.h"
 
 #include "scumm/actor.h"

@@ -72,6 +72,7 @@
 	Note values <= 1 are silent.
 */
 
+#include "common/endian.h"
 #include "common/macresman.h"
 #include "common/translation.h"
 #include "engines/engine.h"

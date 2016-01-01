@@ -20,6 +20,8 @@
  *
  */
 
+#include "common/array.h"
+#include "common/file.h"
 #include "scumm/he/intern_he.h"
 #include "scumm/he/logic_he.h"
 

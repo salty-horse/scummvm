@@ -87,6 +87,7 @@
 	29042	bassoon1
 */
 
+#include "common/endian.h"
 #include "common/macresman.h"
 #include "common/translation.h"
 #include "engines/engine.h"

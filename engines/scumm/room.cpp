@@ -21,6 +21,7 @@
  */
 
 
+#include "common/endian.h"
 #include "common/system.h"
 #include "scumm/actor.h"
 #include "scumm/boxes.h"

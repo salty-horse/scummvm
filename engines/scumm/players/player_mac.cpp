@@ -20,6 +20,8 @@
  *
  */
 
+#include "common/endian.h"
+#include "common/stream.h"
 #include "common/macresman.h"
 #include "engines/engine.h"
 #include "gui/message.h"

@@ -27,6 +27,8 @@
 #include "scumm/sound.h"
 #include "scumm/util.h"
 
+#include "common/endian.h"
+
 namespace Scumm {
 
 const byte smallCostumeScaleTable[256] = {

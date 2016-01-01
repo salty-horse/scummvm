@@ -25,10 +25,8 @@
 
 #include "engines/engine.h"
 
-#include "common/endian.h"
+#include "common/error.h"
 #include "common/events.h"
-#include "common/file.h"
-#include "common/savefile.h"
 #include "common/keyboard.h"
 #include "common/random.h"
 #include "common/rect.h"

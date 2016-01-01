@@ -22,6 +22,7 @@
 
 #ifdef ENABLE_HE
 
+#include "common/endian.h"
 #include "common/system.h"
 #include "graphics/palette.h"
 #include "scumm/scumm.h"

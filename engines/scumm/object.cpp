@@ -20,6 +20,7 @@
  *
  */
 
+#include "common/endian.h"
 #include "scumm/actor.h"
 #include "scumm/bomp.h"
 #include "scumm/he/intern_he.h"

@@ -22,6 +22,7 @@
 
 
 #include "common/endian.h"
+#include "common/stream.h"
 
 #include "scumm/scumm.h"	// For DEBUG_SMUSH
 #include "scumm/util.h"

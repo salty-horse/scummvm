@@ -24,6 +24,7 @@
 #if !defined(SCUMM_HE_CUP_PLAYER_HE_H) && defined(ENABLE_HE)
 #define SCUMM_HE_CUP_PLAYER_HE_H
 
+#include "common/file.h"
 #include "common/stream.h"
 
 namespace Scumm {

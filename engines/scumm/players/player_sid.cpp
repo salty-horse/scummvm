@@ -22,6 +22,7 @@
 
 #ifndef DISABLE_SID
 
+#include "common/endian.h"
 #include "engines/engine.h"
 #include "scumm/players/player_sid.h"
 #include "scumm/scumm.h"

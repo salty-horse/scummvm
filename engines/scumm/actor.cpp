@@ -20,6 +20,7 @@
  *
  */
 
+#include "common/endian.h"
 #include "common/system.h"	// for setFocusRectangle/clearFocusRectangle
 #include "scumm/scumm.h"
 #include "scumm/actor.h"

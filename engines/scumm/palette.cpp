@@ -20,6 +20,7 @@
  *
  */
 
+#include "common/endian.h"
 #include "common/system.h"
 #include "common/textconsole.h"
 #include "common/util.h"

@@ -28,6 +28,7 @@
 #include "scumm/scumm_v6.h"
 #include "scumm/util.h"
 
+#include "common/endian.h"
 #include "common/util.h"
 
 namespace Scumm {

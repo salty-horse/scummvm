@@ -22,6 +22,7 @@
 
 #ifdef ENABLE_HE
 
+#include "common/endian.h"
 #include "scumm/he/floodfill_he.h"
 #include "scumm/he/intern_he.h"
 #include "scumm/resource.h"

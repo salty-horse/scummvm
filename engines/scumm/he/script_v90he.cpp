@@ -22,6 +22,7 @@
 
 #ifdef ENABLE_HE
 
+#include "common/endian.h"
 #include "scumm/actor.h"
 #include "scumm/charset.h"
 #include "scumm/he/animation_he.h"

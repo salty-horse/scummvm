@@ -20,6 +20,7 @@
  *
  */
 
+#include "common/endian.h"
 #include "common/system.h"
 #include "common/util.h"
 #include "graphics/cursorman.h"

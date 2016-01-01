@@ -20,6 +20,7 @@
  *
  */
 
+#include "common/savefile.h"
 #include "scumm/scumm_v4.h"
 #include "scumm/object.h"
 

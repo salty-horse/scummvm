@@ -20,6 +20,7 @@
  *
  */
 
+#include "common/endian.h"
 #include "engines/engine.h"
 #include "scumm/players/player_v2a.h"
 #include "scumm/scumm.h"

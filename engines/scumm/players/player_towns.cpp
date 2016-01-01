@@ -21,6 +21,7 @@
  */
 
 
+#include "common/endian.h"
 #include "scumm/sound.h"
 #include "scumm/players/player_towns.h"
 

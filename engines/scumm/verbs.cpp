@@ -22,6 +22,7 @@
 
 #include "scumm/actor.h"
 #include "scumm/charset.h"
+#include "common/endian.h"
 #include "scumm/he/intern_he.h"
 #include "scumm/object.h"
 #include "scumm/resource.h"

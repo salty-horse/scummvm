@@ -21,6 +21,7 @@
  */
 
 
+#include "common/endian.h"
 #include "engines/engine.h"
 #include "scumm/players/player_v3a.h"
 #include "scumm/scumm.h"

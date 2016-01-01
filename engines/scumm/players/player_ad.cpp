@@ -29,6 +29,7 @@
 #include "audio/fmopl.h"
 #include "audio/mixer.h"
 
+#include "common/endian.h"
 #include "common/textconsole.h"
 #include "common/config-manager.h"
 
