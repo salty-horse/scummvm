@@ -54,6 +54,7 @@ void TuckerEngine::handleCreditsSequence() {
 	int counter2 = 0;
 	int counter1 = 0;
 	loadCharset2();
+	showCursor(false);
 	stopSounds();
 	_locationNum = 74;
 	_flagsTable[236] = 74;
@@ -159,12 +160,14 @@ void TuckerEngine::handleCreditsSequence() {
 		redrawScreen(0);
 		waitForTimer(2);
 	} while (_fadePaletteCounter > 0);
+	showCursor(true);
 }
 
 void TuckerEngine::handleCongratulationsSequence() {
 	_timerCounter2 = 0;
 	_fadePaletteCounter = 0;
 	stopSounds();
+	showCursor(false);
 	loadImage("congrat.pcx", _loadTempBuf, 1);
 	Graphics::copyRect(_locationBackgroundGfxBuf, 640, _loadTempBuf, 320, 320, 200);
 	_fullRedraw = true;
@@ -181,6 +184,7 @@ void TuckerEngine::handleCongratulationsSequence() {
 void TuckerEngine::handleNewPartSequence() {
 	char filename[40];
 
+	showCursor(false);
 	stopSounds();
 	if (_flagsTable[219] == 1) {
 		_flagsTable[219] = 0;
@@ -259,6 +263,7 @@ void TuckerEngine::handleNewPartSequence() {
 		waitForTimer(3);
 	} while (_fadePaletteCounter > 0 && !_quitGame);
 	_locationNum = currentLocation;
+	showCursor(true);
 }
 
 void TuckerEngine::handleMeanwhileSequence() {
@@ -280,6 +285,7 @@ void TuckerEngine::handleMeanwhileSequence() {
 		strcpy(filename, "loc80.pcx");
 	}
 	loadImage(filename, _quadBackgroundGfxBuf + 89600, 1);
+	showCursor(false);
 	_fadePaletteCounter = 0;
 	for (int i = 0; i < 60 && !_quitGame; ++i) {
 		if (_fadePaletteCounter < 16) {
@@ -307,6 +313,7 @@ void TuckerEngine::handleMeanwhileSequence() {
 	} while (_fadePaletteCounter > 0 && !_quitGame);
 	memcpy(_currentPalette, backupPalette, 256 * 3);
 	_fullRedraw = true;
+	showCursor(true);
 }
 
 void TuckerEngine::handleMapSequence() {
