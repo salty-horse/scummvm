@@ -576,12 +576,6 @@ ScummEngine::ScummEngine(OSystem *syst, const DetectorResult &dr)
 	// Add debug levels
 	for (int i = 0; i < ARRAYSIZE(debugChannels); ++i)
 		DebugMan.addDebugChannel(debugChannels[i].flag,  debugChannels[i].channel, debugChannels[i].desc);
-
-#ifndef DISABLE_HELP
-	// Create custom GMM dialog providing a help subdialog
-	assert(!_mainMenuDialog);
-	_mainMenuDialog = new ScummMenuDialog(this);
-#endif
 }
 
 
@@ -1252,6 +1246,12 @@ Common::Error ScummEngine::init() {
 	}
 
 	_outputPixelFormat = _system->getScreenFormat();
+
+#ifndef DISABLE_HELP
+	// Create custom GMM dialog providing a help subdialog
+	assert(!_mainMenuDialog);
+	_mainMenuDialog = new ScummMenuDialog(this);
+#endif
 
 	setupScumm();
 
