@@ -33,6 +33,7 @@
 #include "common/file.h"
 #include "common/textconsole.h"
 #include "audio/audiostream.h"
+#include "audio/mixer.h"
 #include "audio/mods/module.h"
 #include "audio/mods/protracker.h"
 #include "audio/decoders/raw.h"
@@ -186,6 +187,14 @@ Audio::AudioStream *makeTwaStream(Common::String name, Common::SeekableReadStrea
 	return new TwaAudioStream(name, stream);
 }
 
+SwavItem::SwavItem() : _active(false), _audioStream(NULL), _freeSampleFl(false) {
+	_soundHandle = new Audio::SoundHandle();
+}
+
+SwavItem::~SwavItem() {
+	delete _soundHandle;
+}
+
 SoundManager::SoundManager(HopkinsEngine *vm) {
 	_vm = vm;
 
@@ -202,12 +211,14 @@ SoundManager::SoundManager(HopkinsEngine *vm) {
 	_currentSoundIndex = 0;
 	_oldSoundNumber = 0;
 	_modPlayingFl = false;
+	_musicHandle = new Audio::SoundHandle();
 }
 
 SoundManager::~SoundManager() {
 	stopMusic();
 	delMusic();
-	_vm->_mixer->stopHandle(_musicHandle);
+	_vm->_mixer->stopHandle(*_musicHandle);
+	delete _musicHandle;
 	_modPlayingFl = false;
 }
 
@@ -428,7 +439,7 @@ void SoundManager::loadMusic(const Common::String &file) {
 			module->songlen = 3;
 		}
 
-		_vm->_mixer->playStream(Audio::Mixer::kMusicSoundType, &_musicHandle, modStream);
+		_vm->_mixer->playStream(Audio::Mixer::kMusicSoundType, _musicHandle, modStream);
 
 	} else {
 		Common::String filename = Common::String::format("%s.TWA", file.c_str());
@@ -437,7 +448,7 @@ void SoundManager::loadMusic(const Common::String &file) {
 			error("Error opening file %s", filename.c_str());
 
 		Audio::AudioStream *twaStream = makeTwaStream(file.c_str(), &f);
-		_vm->_mixer->playStream(Audio::Mixer::kMusicSoundType, &_musicHandle, twaStream);
+		_vm->_mixer->playStream(Audio::Mixer::kMusicSoundType, _musicHandle, twaStream);
 		f.close();
 	}
 
@@ -448,7 +459,7 @@ void SoundManager::playMusic() {
 }
 
 void SoundManager::stopMusic() {
-	_vm->_mixer->stopHandle(_musicHandle);
+	_vm->_mixer->stopHandle(*_musicHandle);
 }
 
 void SoundManager::delMusic() {
@@ -697,7 +708,7 @@ void SoundManager::setMODSampleVolume() {
 	for (int idx = 0; idx < SWAV_COUNT; ++idx) {
 		if (idx != 20 && _sWav[idx]._active) {
 			int volume = _soundVolume * 255 / 16;
-			_vm->_mixer->setChannelVolume(_sWav[idx]._soundHandle, volume);
+			_vm->_mixer->setChannelVolume(*_sWav[idx]._soundHandle, volume);
 		}
 	}
 }
@@ -705,13 +716,13 @@ void SoundManager::setMODSampleVolume() {
 void SoundManager::setMODVoiceVolume() {
 	if (_sWav[20]._active) {
 		int volume = _voiceVolume * 255 / 16;
-		_vm->_mixer->setChannelVolume(_sWav[20]._soundHandle, volume);
+		_vm->_mixer->setChannelVolume(*_sWav[20]._soundHandle, volume);
 	}
 }
 
 void SoundManager::setMODMusicVolume(int volume) {
-	if (_vm->_mixer->isSoundHandleActive(_musicHandle))
-		_vm->_mixer->setChannelVolume(_musicHandle, volume * 255 / 16);
+	if (_vm->_mixer->isSoundHandleActive(*_musicHandle))
+		_vm->_mixer->setChannelVolume(*_musicHandle, volume * 255 / 16);
 }
 
 void SoundManager::loadSample(int wavIndex, const Common::String &file) {
@@ -781,7 +792,7 @@ bool SoundManager::removeWavSample(int wavIndex) {
 	if (!_sWav[wavIndex]._active)
 		return false;
 
-	_vm->_mixer->stopHandle(_sWav[wavIndex]._soundHandle);
+	_vm->_mixer->stopHandle(*_sWav[wavIndex]._soundHandle);
 	delete _sWav[wavIndex]._audioStream;
 	_sWav[wavIndex]._audioStream = NULL;
 	_sWav[wavIndex]._active = false;
@@ -860,12 +871,12 @@ void SoundManager::playWavSample(int voiceIndex, int wavIndex) {
 	// If the handle is still in use, stop it. Otherwise we'll lose the
 	// handle to that sound. This can currently happen (but probably
 	// shouldn't) when skipping a movie.
-	if (_vm->_mixer->isSoundHandleActive(_sWav[wavIndex]._soundHandle))
-		  _vm->_mixer->stopHandle(_sWav[wavIndex]._soundHandle);
+	if (_vm->_mixer->isSoundHandleActive(*_sWav[wavIndex]._soundHandle))
+		  _vm->_mixer->stopHandle(*_sWav[wavIndex]._soundHandle);
 
 	// Start the voice playing
 	_sWav[wavIndex]._audioStream->rewind();
-	_vm->_mixer->playStream(Audio::Mixer::kSFXSoundType, &_sWav[wavIndex]._soundHandle,
+	_vm->_mixer->playStream(Audio::Mixer::kSFXSoundType, _sWav[wavIndex]._soundHandle,
 		_sWav[wavIndex]._audioStream, -1, volume, 0, DisposeAfterUse::NO);
 }
 
@@ -888,11 +899,11 @@ void SoundManager::syncSoundSettings() {
 	for (int idx = 0; idx < SWAV_COUNT; ++idx) {
 		if (_sWav[idx]._active) {
 			int volume = (idx == 20) ? (_voiceVolume * 255 / 16) : (_soundVolume * 255 / 16);
-			_vm->_mixer->setChannelVolume(_sWav[idx]._soundHandle, volume);
+			_vm->_mixer->setChannelVolume(*_sWav[idx]._soundHandle, volume);
 		}
 	}
-	if (_vm->_mixer->isSoundHandleActive(_musicHandle)) {
-		_vm->_mixer->setChannelVolume(_musicHandle, _musicVolume * 255 / 16);
+	if (_vm->_mixer->isSoundHandleActive(*_musicHandle)) {
+		_vm->_mixer->setChannelVolume(*_musicHandle, _musicVolume * 255 / 16);
 	}
 }
 

@@ -25,10 +25,10 @@
 
 #include "common/scummsys.h"
 #include "common/str.h"
-#include "audio/mixer.h"
 
 namespace Audio {
 class RewindableAudioStream;
+class SoundHandle;
 }
 
 namespace Common {
@@ -47,11 +47,12 @@ public:
 
 class SwavItem {
 public:
-	SwavItem() : _active(false), _audioStream(NULL), _freeSampleFl(false) {}
+	SwavItem();
+	~SwavItem();
 
 	bool _active;
 	Audio::RewindableAudioStream *_audioStream;
-	Audio::SoundHandle _soundHandle;
+	Audio::SoundHandle *_soundHandle;
 	bool _freeSampleFl;
 };
 
@@ -79,7 +80,7 @@ class SoundManager {
 private:
 	HopkinsEngine *_vm;
 
-	Audio::SoundHandle _musicHandle;
+	Audio::SoundHandle *_musicHandle;
 	int _currentSoundIndex;
 	bool _modPlayingFl;
 	int _oldSoundNumber;
