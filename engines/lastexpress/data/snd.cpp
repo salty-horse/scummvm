@@ -27,6 +27,7 @@
 
 #include "lastexpress/debug.h"
 
+#include "audio/mixer.h"
 #include "audio/decoders/adpcm_intern.h"
 #include "common/debug.h"
 #include "common/memstream.h"
@@ -422,15 +423,18 @@ private:
 //////////////////////////////////////////////////////////////////////////
 // Sound
 //////////////////////////////////////////////////////////////////////////
-SimpleSound::SimpleSound() : _size(0), _blocks(0), _blockSize(0) {}
+SimpleSound::SimpleSound() : _size(0), _blocks(0), _blockSize(0) {
+	_handle = new Audio::SoundHandle();
+}
 
 SimpleSound::~SimpleSound() {
 	stop();
+	delete _handle;
 }
 
 // Stop the sound
 void SimpleSound::stop() const {
-	g_system->getMixer()->stopHandle(_handle);
+	g_system->getMixer()->stopHandle(*_handle);
 }
 
 void SimpleSound::loadHeader(Common::SeekableReadStream *in) {
@@ -447,7 +451,7 @@ LastExpress_ADPCMStream *SimpleSound::makeDecoder(Common::SeekableReadStream *in
 }
 
 void SimpleSound::play(Audio::AudioStream *as) {
-	g_system->getMixer()->playStream(Audio::Mixer::kPlainSoundType, &_handle, as);
+	g_system->getMixer()->playStream(Audio::Mixer::kPlainSoundType, _handle, as);
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -463,7 +467,7 @@ bool StreamedSound::load(Common::SeekableReadStream *stream, int32 filterId) {
 	if (!stream)
 		return false;
 
-	g_system->getMixer()->stopHandle(_handle);
+	g_system->getMixer()->stopHandle(*_handle);
 
 	loadHeader(stream);
 
@@ -482,7 +486,7 @@ bool StreamedSound::isFinished() {
 	if (!_loaded)
 		return false;
 
-	return !g_system->getMixer()->isSoundHandleActive(_handle);
+	return !g_system->getMixer()->isSoundHandleActive(*_handle);
 }
 
 void StreamedSound::setFilterId(int32 filterId) {

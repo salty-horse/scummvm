@@ -51,6 +51,7 @@
 
 #include "common/debug-channels.h"
 #include "common/md5.h"
+#include "audio/mixer.h"
 
 namespace LastExpress {
 

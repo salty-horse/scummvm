@@ -48,6 +48,7 @@
 #include "lastexpress/resource.h"
 
 #include "common/rational.h"
+#include "audio/mixer.h"
 
 #define getNextGameId() (GameId)((_gameId + 1) % 6)
 

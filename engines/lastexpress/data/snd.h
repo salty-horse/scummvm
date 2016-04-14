@@ -36,11 +36,12 @@
 	    byte {x}     - IMA ADPCM sample codes
 */
 
-#include "audio/mixer.h"
+#include "common/types.h"
 
 namespace Audio {
 class AudioStream;
 class QueuingAudioStream;
+class SoundHandle;
 }
 
 namespace Common {
@@ -70,7 +71,7 @@ protected:
 	                ///<  - SND: size of all blocks
 	uint16 _blocks; ///< number of blocks
 	uint32 _blockSize;
-	Audio::SoundHandle _handle;
+	Audio::SoundHandle *_handle;
 };
 
 class StreamedSound : public SimpleSound {
