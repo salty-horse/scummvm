@@ -24,15 +24,11 @@
 
 #include "kyra/eobcommon.h"
 #include "kyra/resource.h"
-#include "kyra/sound_intern.h"
+#include "kyra/sound.h"
 
+#include "common/system.h"
 #include "common/savefile.h"
-#include "common/str-array.h"
-
 #include "common/config-manager.h"
-#include "base/plugins.h"
-#include "engines/metaengine.h"
-#include "engines/game.h"
 
 namespace Kyra {
 

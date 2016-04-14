@@ -29,6 +29,7 @@
 #include "common/system.h"
 
 #include "audio/audiostream.h"
+#include "audio/mixer.h"
 
 namespace Kyra {
 
@@ -86,7 +87,7 @@ bool LoLEngine::snd_playCharacterSpeech(int id, int8 speaker, int) {
 	if (newSpeechList.empty())
 		return false;
 
-	while (_sound->voiceIsPlaying(&_speechHandle))
+	while (_sound->voiceIsPlaying(_speechHandle))
 		delay(_tickLength, true);
 
 	while (_sound->allVoiceChannelsPlaying())
@@ -106,7 +107,7 @@ bool LoLEngine::snd_playCharacterSpeech(int id, int8 speaker, int) {
 			_activeVoiceFileTotalTime += (*i++)->getLength().msecs();
 	}
 
-	_sound->playVoiceStream(*_speechList.begin(), &_speechHandle);
+	_sound->playVoiceStream(*_speechList.begin(), _speechHandle);
 	_speechList.pop_front();
 
 	if (!_activeVoiceFileTotalTime)
@@ -118,11 +119,11 @@ bool LoLEngine::snd_playCharacterSpeech(int id, int8 speaker, int) {
 }
 
 int LoLEngine::snd_updateCharacterSpeech() {
-	if (_sound->voiceIsPlaying(&_speechHandle))
+	if (_sound->voiceIsPlaying(_speechHandle))
 		return 2;
 
 	if (_speechList.begin() != _speechList.end()) {
-		_sound->playVoiceStream(*_speechList.begin(), &_speechHandle);
+		_sound->playVoiceStream(*_speechList.begin(), _speechHandle);
 		_speechList.pop_front();
 		return 2;
 
@@ -140,11 +141,11 @@ int LoLEngine::snd_updateCharacterSpeech() {
 }
 
 void LoLEngine::snd_stopSpeech(bool setFlag) {
-	if (!_sound->voiceIsPlaying(&_speechHandle))
+	if (!_sound->voiceIsPlaying(_speechHandle))
 		return;
 
 	//_dlgTimer = 0;
-	_sound->voiceStop(&_speechHandle);
+	_sound->voiceStop(_speechHandle);
 	_activeVoiceFileTotalTime = 0;
 	_nextSpeechId = _nextSpeaker = -1;
 

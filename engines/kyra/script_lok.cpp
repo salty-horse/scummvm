@@ -702,7 +702,7 @@ int KyraEngine_LoK::o1_displayWSASequentialFrames(EMCState *script) {
 				voiceTime /= 100;
 
 				if (voiceSync) {
-					uint32 voicePlayedTime = _sound->voicePlayedTime(_speechHandle);
+					uint32 voicePlayedTime = _sound->voicePlayedTime(*_speechHandle);
 					if (voicePlayedTime >= voiceTime)
 						voiceTime = 0;
 					else

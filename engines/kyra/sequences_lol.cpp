@@ -414,10 +414,10 @@ void LoLEngine::kingSelectionIntro() {
 	}
 
 	if (_flags.isTalkie)
-		_sound->voicePlay("KING01", &_speechHandle);
+		_sound->voicePlay("KING01", _speechHandle);
 
 	int index = 4;
-	while ((!speechEnabled() || (speechEnabled() && _sound->voiceIsPlaying(&_speechHandle))) && _charSelection == -1 && !shouldQuit() && !skipFlag()) {
+	while ((!speechEnabled() || (speechEnabled() && _sound->voiceIsPlaying(_speechHandle))) && _charSelection == -1 && !shouldQuit() && !skipFlag()) {
 		index = MAX(index, 4);
 
 		_chargenWSA->displayFrame(_chargenFrameTable[index], 0, 113, 0, 0, 0, 0);
@@ -443,7 +443,7 @@ void LoLEngine::kingSelectionIntro() {
 
 	_chargenWSA->displayFrame(0x10, 0, 113, 0, 0, 0, 0);
 	_screen->updateScreen();
-	_sound->voiceStop(&_speechHandle);
+	_sound->voiceStop(_speechHandle);
 }
 
 void LoLEngine::kingSelectionReminder() {
@@ -459,10 +459,10 @@ void LoLEngine::kingSelectionReminder() {
 	}
 
 	if (_flags.isTalkie)
-		_sound->voicePlay("KING02", &_speechHandle);
+		_sound->voicePlay("KING02", _speechHandle);
 
 	int index = 0;
-	while ((!speechEnabled() || (speechEnabled() && _sound->voiceIsPlaying(&_speechHandle))) && _charSelection == -1 && !shouldQuit() && index < 15) {
+	while ((!speechEnabled() || (speechEnabled() && _sound->voiceIsPlaying(_speechHandle))) && _charSelection == -1 && !shouldQuit() && index < 15) {
 		_chargenWSA->displayFrame(_chargenFrameTable[index + 9], 0, 113, 0, 0, 0, 0);
 		_screen->copyRegion(_selectionPosTable[_reminderChar1IdxTable[index] * 2 + 0], _selectionPosTable[_reminderChar1IdxTable[index] * 2 + 1], _charPreviews[0].x, _charPreviews[0].y, 32, 32, 4, 0);
 		_screen->copyRegion(_selectionPosTable[_reminderChar2IdxTable[index] * 2 + 0], _selectionPosTable[_reminderChar2IdxTable[index] * 2 + 1], _charPreviews[1].x, _charPreviews[1].y, 32, 32, 4, 0);
@@ -482,15 +482,15 @@ void LoLEngine::kingSelectionReminder() {
 			break;
 	}
 
-	_sound->voiceStop(&_speechHandle);
+	_sound->voiceStop(_speechHandle);
 }
 
 void LoLEngine::kingSelectionOutro() {
 	if (_flags.isTalkie)
-		_sound->voicePlay("KING03", &_speechHandle);
+		_sound->voicePlay("KING03", _speechHandle);
 
 	int index = 0;
-	while ((!speechEnabled() || (speechEnabled() && _sound->voiceIsPlaying(&_speechHandle))) && !shouldQuit() && !skipFlag()) {
+	while ((!speechEnabled() || (speechEnabled() && _sound->voiceIsPlaying(_speechHandle))) && !shouldQuit() && !skipFlag()) {
 		index = MAX(index, 4);
 
 		_chargenWSA->displayFrame(_chargenFrameTable[index], 0, 113, 0, 0, 0, 0);
@@ -512,7 +512,7 @@ void LoLEngine::kingSelectionOutro() {
 
 	_chargenWSA->displayFrame(0x10, 0, 113, 0, 0, 0, 0);
 	_screen->updateScreen();
-	_sound->voiceStop(&_speechHandle);
+	_sound->voiceStop(_speechHandle);
 }
 
 void LoLEngine::processCharacterSelection() {
@@ -647,10 +647,10 @@ void LoLEngine::selectionCharInfoIntro(char *file) {
 			break;
 
 		if (_flags.isTalkie)
-			_sound->voicePlay(file, &_speechHandle);
+			_sound->voicePlay(file, _speechHandle);
 
 		int i = 0;
-		while ((!speechEnabled() || (speechEnabled() && _sound->voiceIsPlaying(&_speechHandle))) && _charSelectionInfoResult == -1 && !shouldQuit()) {
+		while ((!speechEnabled() || (speechEnabled() && _sound->voiceIsPlaying(_speechHandle))) && _charSelectionInfoResult == -1 && !shouldQuit()) {
 			_screen->drawShape(0, _screen->getPtrToShape(_screen->getCPagePtr(9), _charInfoFrameTable[i]), 11, 130, 0, 0);
 			_screen->updateScreen();
 
@@ -666,7 +666,7 @@ void LoLEngine::selectionCharInfoIntro(char *file) {
 				processAnim = false;
 		}
 
-		_sound->voiceStop(&_speechHandle);
+		_sound->voiceStop(_speechHandle);
 		file[4] = ++index + '0';
 	}
 
@@ -731,8 +731,8 @@ void LoLEngine::showStarcraftLogo() {
 	}
 
 	if (!(shouldQuit() || inputFlag)) {
-		_sound->voicePlay("star2", &_speechHandle);
-		while (_sound->voiceIsPlaying(&_speechHandle) && !(shouldQuit() || inputFlag)) {
+		_sound->voicePlay("star2", _speechHandle);
+		while (_sound->voiceIsPlaying(_speechHandle) && !(shouldQuit() || inputFlag)) {
 			inputFlag = checkInput(0) & 0xFF;
 			delay(_tickLength);
 		}

@@ -75,7 +75,7 @@ void KyraEngine_LoK::snd_playWanderScoreViaMap(int command, int restart) {
 
 void KyraEngine_LoK::snd_playVoiceFile(int id) {
 	Common::String vocFile = Common::String::format("%03d", id);
-	_speechPlayTime = _sound->voicePlay(vocFile.c_str(), &_speechHandle);
+	_speechPlayTime = _sound->voicePlay(vocFile.c_str(), _speechHandle);
 }
 
 void KyraEngine_LoK::snd_voiceWaitForFinish(bool ingame) {

@@ -66,6 +66,8 @@ KyraEngine_v1::KyraEngine_v1(OSystem *system, const GameFlags &flags)
 
 	_mouseX = _mouseY = 0;
 
+	_speechHandle = new Audio::SoundHandle();
+
 	// sets up all engine specific debug levels
 	DebugMan.addDebugChannel(kDebugLevelScriptFuncs, "ScriptFuncs", "Script function debug level");
 	DebugMan.addDebugChannel(kDebugLevelScript, "Script", "Script interpreter debug level");
@@ -215,6 +217,7 @@ KyraEngine_v1::~KyraEngine_v1() {
 	delete _timer;
 	delete _emc;
 	delete _debugger;
+	delete _speechHandle;
 }
 
 Common::Point KyraEngine_v1::getMousePos() {

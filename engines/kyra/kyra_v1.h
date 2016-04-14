@@ -32,15 +32,17 @@
 #include "common/random.h"
 #include "common/rendermode.h"
 
-#include "audio/mixer.h"
-
 #include "kyra/script.h"
 #include "kyra/item.h"
 
 namespace Common {
 class SeekableReadStream;
 class WriteStream;
-} // End of namespace Common
+}
+
+namespace Audio {
+class SoundHandle;
+}
 
 namespace Graphics {
 struct Surface;
@@ -351,7 +353,7 @@ protected:
 	uint8 _flagsTable[100]; // TODO: check this value
 
 	// sound
-	Audio::SoundHandle _speechHandle;
+	Audio::SoundHandle *_speechHandle;
 
 	int _curMusicTheme;
 	int _curSfxFile;

@@ -103,7 +103,7 @@ Audio::SeekableAudioStream *Sound::getVoiceStream(const char *file) const {
 
 bool Sound::playVoiceStream(Audio::AudioStream *stream, Audio::SoundHandle *handle, uint8 volume, uint8 priority, bool isSfx) {
 	int h = 0;
-	while (h < kNumChannelHandles && _mixer->isSoundHandleActive(_soundChannels[h].handle))
+	while (h < kNumChannelHandles && _mixer->isSoundHandleActive(*_soundChannels[h].handle))
 		++h;
 
 	if (h >= kNumChannelHandles) {
@@ -111,7 +111,7 @@ bool Sound::playVoiceStream(Audio::AudioStream *stream, Audio::SoundHandle *hand
 		while (h < kNumChannelHandles && _soundChannels[h].priority > priority)
 			++h;
 		if (h < kNumChannelHandles)
-			voiceStop(&_soundChannels[h].handle);
+			voiceStop(_soundChannels[h].handle);
 	}
 
 	if (h >= kNumChannelHandles) {
@@ -123,10 +123,10 @@ bool Sound::playVoiceStream(Audio::AudioStream *stream, Audio::SoundHandle *hand
 		return false;
 	}
 
-	_mixer->playStream(isSfx ? Audio::Mixer::kSFXSoundType : Audio::Mixer::kSpeechSoundType, &_soundChannels[h].handle, stream, -1, volume);
+	_mixer->playStream(isSfx ? Audio::Mixer::kSFXSoundType : Audio::Mixer::kSpeechSoundType, _soundChannels[h].handle, stream, -1, volume);
 	_soundChannels[h].priority = priority;
 	if (handle)
-		*handle = _soundChannels[h].handle;
+		handle = _soundChannels[h].handle;
 
 	return true;
 }
@@ -134,8 +134,8 @@ bool Sound::playVoiceStream(Audio::AudioStream *stream, Audio::SoundHandle *hand
 void Sound::voiceStop(const Audio::SoundHandle *handle) {
 	if (!handle) {
 		for (int h = 0; h < kNumChannelHandles; ++h) {
-			if (_mixer->isSoundHandleActive(_soundChannels[h].handle))
-				_mixer->stopHandle(_soundChannels[h].handle);
+			if (_mixer->isSoundHandleActive(*_soundChannels[h].handle))
+				_mixer->stopHandle(*_soundChannels[h].handle);
 		}
 	} else {
 		_mixer->stopHandle(*handle);
@@ -145,7 +145,7 @@ void Sound::voiceStop(const Audio::SoundHandle *handle) {
 bool Sound::voiceIsPlaying(const Audio::SoundHandle *handle) const {
 	if (!handle) {
 		for (int h = 0; h < kNumChannelHandles; ++h) {
-			if (_mixer->isSoundHandleActive(_soundChannels[h].handle))
+			if (_mixer->isSoundHandleActive(*_soundChannels[h].handle))
 				return true;
 		}
 	} else {
@@ -157,9 +157,20 @@ bool Sound::voiceIsPlaying(const Audio::SoundHandle *handle) const {
 
 bool Sound::allVoiceChannelsPlaying() const {
 	for (int i = 0; i < kNumChannelHandles; ++i)
-		if (!_mixer->isSoundHandleActive(_soundChannels[i].handle))
+		if (!_mixer->isSoundHandleActive(*_soundChannels[i].handle))
 			return false;
 	return true;
+}
+
+uint32 Sound::voicePlayedTime(const Audio::SoundHandle &handle) const {
+	return _mixer->getSoundElapsedTime(handle);
+}
+
+#pragma mark -
+
+Sound::SoundChannel::SoundChannel() : handle(new Audio::SoundHandle()), priority(0) {}
+Sound::SoundChannel::~SoundChannel() {
+	delete handle;
 }
 
 #pragma mark -
@@ -326,11 +337,11 @@ void KyraEngine_v1::snd_playWanderScoreViaMap(int command, int restart) {
 }
 
 void KyraEngine_v1::snd_stopVoice() {
-	_sound->voiceStop(&_speechHandle);
+	_sound->voiceStop(_speechHandle);
 }
 
 bool KyraEngine_v1::snd_voiceIsPlaying() {
-	return _sound->voiceIsPlaying(&_speechHandle);
+	return _sound->voiceIsPlaying(_speechHandle);
 }
 
 // static res

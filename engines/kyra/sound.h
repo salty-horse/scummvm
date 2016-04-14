@@ -27,13 +27,13 @@
 
 #include "common/scummsys.h"
 #include "common/str.h"
-
-#include "audio/mixer.h"
+#include "common/types.h"
 
 namespace Audio {
 class AudioStream;
 class SeekableAudioStream;
-} // End of namespace Audio
+class SoundHandle;
+}
 
 namespace Kyra {
 
@@ -246,9 +246,7 @@ public:
 	 *
 	 * @return time in milliseconds
 	 */
-	uint32 voicePlayedTime(const Audio::SoundHandle &handle) const {
-		return _mixer->getSoundElapsedTime(handle);
-	}
+	uint32 voicePlayedTime(const Audio::SoundHandle &handle) const;
 
 	/**
 	 * Stops playback of the current voice.
@@ -270,8 +268,9 @@ protected:
 	};
 
 	struct SoundChannel {
-		SoundChannel() : handle(), priority(0) {}
-		Audio::SoundHandle handle;
+		SoundChannel();
+		~SoundChannel();
+		Audio::SoundHandle *handle;
 		int priority;
 	};
 

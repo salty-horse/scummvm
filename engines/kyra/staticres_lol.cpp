@@ -24,7 +24,7 @@
 #include "kyra/lol.h"
 #include "kyra/screen_lol.h"
 #include "kyra/gui_lol.h"
-#include "kyra/sound_intern.h"
+#include "kyra/sound.h"
 
 #ifdef ENABLE_LOL
 
