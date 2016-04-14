@@ -24,6 +24,7 @@
  */
 
 #include "audio/audiostream.h"
+#include "audio/mixer.h"
 #include "audio/decoders/aiff.h"
 #include "audio/decoders/quicktime.h"
 #include "common/file.h"
@@ -101,7 +102,7 @@ void Sound::playSound() {
 	if (_fader)
 		setVolume(_fader->getFaderValue());
 
-	g_system->getMixer()->playStream(Audio::Mixer::kPlainSoundType, &_handle, _stream, -1, _volume, 0, DisposeAfterUse::NO);
+	g_system->getMixer()->playStream(Audio::Mixer::kPlainSoundType, _handle, _stream, -1, _volume, 0, DisposeAfterUse::NO);
 }
 
 void Sound::loopSound() {
@@ -117,7 +118,7 @@ void Sound::loopSound() {
 	if (_fader)
 		setVolume(0);
 
-	g_system->getMixer()->playStream(Audio::Mixer::kPlainSoundType, &_handle, loopStream, -1, _volume, 0, DisposeAfterUse::YES);
+	g_system->getMixer()->playStream(Audio::Mixer::kPlainSoundType, _handle, loopStream, -1, _volume, 0, DisposeAfterUse::YES);
 }
 
 void Sound::playSoundSegment(uint32 start, uint32 end) {
@@ -128,11 +129,11 @@ void Sound::playSoundSegment(uint32 start, uint32 end) {
 
 	Audio::AudioStream *subStream = new Audio::SubSeekableAudioStream(_stream, Audio::Timestamp(0, start, 600), Audio::Timestamp(0, end, 600), DisposeAfterUse::NO);
 
-	g_system->getMixer()->playStream(Audio::Mixer::kPlainSoundType, &_handle, subStream, -1, _volume, 0, DisposeAfterUse::YES);
+	g_system->getMixer()->playStream(Audio::Mixer::kPlainSoundType, _handle, subStream, -1, _volume, 0, DisposeAfterUse::YES);
 }
 
 void Sound::stopSound() {
-	g_system->getMixer()->stopHandle(_handle);
+	g_system->getMixer()->stopHandle(*_handle);
 }
 
 void Sound::setVolume(const uint16 volume) {
@@ -140,11 +141,11 @@ void Sound::setVolume(const uint16 volume) {
 	// We store the volume in case SetVolume is called before the sound starts
 
 	_volume = (volume == 0x100) ? 0xFF : volume;
-	g_system->getMixer()->setChannelVolume(_handle, _volume);
+	g_system->getMixer()->setChannelVolume(*_handle, _volume);
 }
 
 bool Sound::isPlaying() {
-	return isSoundLoaded() && g_system->getMixer()->isSoundHandleActive(_handle);
+	return isSoundLoaded() && g_system->getMixer()->isSoundHandleActive(*_handle);
 }
 
 bool Sound::isSoundLoaded() const {
@@ -171,7 +172,7 @@ void SoundTimeBase::updateTime() {
 	if (_setToStart) {
 		if (isPlaying()) {
 			// Not at the end, let's get the time
-			uint numFrames = g_system->getMixer()->getSoundElapsedTime(_handle) * 600 / 1000;
+			uint numFrames = g_system->getMixer()->getSoundElapsedTime(*_handle) * 600 / 1000;
 
 			// WORKAROUND: Our mixer is woefully inaccurate and quite often returns
 			// times that exceed the actual length of the clip. We'll just fake times

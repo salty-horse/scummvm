@@ -26,12 +26,12 @@
 #ifndef PEGASUS_SOUND_H
 #define PEGASUS_SOUND_H
 
-#include "audio/mixer.h"
 #include "common/str.h"
 #include "pegasus/timers.h"
 
 namespace Audio {
-	class SeekableAudioStream;
+class SeekableAudioStream;
+class SoundHandle;
 }
 
 namespace Pegasus {
@@ -76,7 +76,7 @@ public:
 
 protected:
 	Audio::SeekableAudioStream *_stream;
-	Audio::SoundHandle _handle;
+	Audio::SoundHandle *_handle;
 	byte _volume;
 
 	SoundFader *_fader;
