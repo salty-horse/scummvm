@@ -23,9 +23,8 @@
 #ifndef AVALANCHE_SOUND_H
 #define AVALANCHE_SOUND_H
 
-#include "audio/mixer.h"
-
 namespace Audio {
+class SoundHandle;
 class PCSpeaker;
 }
 
@@ -48,7 +47,7 @@ public:
 private:
 	AvalancheEngine *_vm;
 	Audio::PCSpeaker *_speakerStream;
-	Audio::SoundHandle _speakerHandle;
+	Audio::SoundHandle *_speakerHandle;
 };
 
 } // End of namespace Avalanche
